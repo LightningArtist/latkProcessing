@@ -1,4 +1,4 @@
-VoxelPaint was developed with support from:
+VoxelPaint was developed with support from: 
    Canada Council for the Arts
    Eyebeam Art + Technology Center
 Copyright (c) 2012 Nick Fox-Gieg Animation

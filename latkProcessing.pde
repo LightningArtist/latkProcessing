@@ -8,8 +8,8 @@ JSONObject jsonLayer;
 JSONObject jsonFrame;
 JSONObject jsonStroke;
 JSONObject jsonPoint;
-String jsonFilename = "layer_test.json";
-float globalScale = 100;
+String jsonFilename = "layer_test";
+float globalScale = 1000;
 
 PeasyCam cam;
 int sW = 64;
@@ -35,7 +35,7 @@ void setup() {
   Settings settings = new Settings("settings.txt");
   voxel = new Voxel[sW][sH][sD];
   surface.setSize(sW*scaleFactor, sH*scaleFactor);
-  json = loadJSONObject(jsonFilename);
+  json = loadJSONObject(jsonFilename + ".json");
   for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
     jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
     for (int i=0; i<jsonGp.getJSONArray("layers").size(); i++) {
@@ -95,6 +95,8 @@ void draw() {
     Stroke s = (Stroke) tempStrokes.get(i);
     s.run();
   }
+  
+  surface.setTitle(int(frameRate) + " fps");
 }
 
 void posCheck(){
