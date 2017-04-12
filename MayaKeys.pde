@@ -41,5 +41,3 @@ void mayaKeysEnd() {
   dataMaya.add("#move(0,0,0)" + "\r");
   dataMaya.endSave(mayaFilePath + "/" + mayaFileName + "." + mayaFileType);
 }
-
-

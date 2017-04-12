@@ -2,6 +2,15 @@ import processing.opengl.*;
 import java.awt.event.*;
 import peasy.*;
 
+JSONObject json;
+JSONObject jsonGp;
+JSONObject jsonLayer;
+JSONObject jsonFrame;
+JSONObject jsonStroke;
+JSONObject jsonPoint;
+String jsonFilename = "layer_test.json";
+float globalScale = 100;
+
 PeasyCam cam;
 int sW = 64;
 int sH = 64;
@@ -19,11 +28,40 @@ boolean triggered=false;
 
 Voxel[][][] voxel;
 
+ArrayList tempStrokes = new ArrayList();
+
 void setup() {
   size(50,50,P3D);
   Settings settings = new Settings("settings.txt");
   voxel = new Voxel[sW][sH][sD];
   surface.setSize(sW*scaleFactor, sH*scaleFactor);
+  json = loadJSONObject(jsonFilename);
+  for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
+    jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
+    for (int i=0; i<jsonGp.getJSONArray("layers").size(); i++) {
+      jsonLayer = (JSONObject) jsonGp.getJSONArray("layers").get(i);
+      for (int j=0; j<jsonLayer.getJSONArray("frames").size(); j++) {
+        jsonFrame = (JSONObject) jsonLayer.getJSONArray("frames").get(j);
+        for (int l=0; l<jsonFrame.getJSONArray("strokes").size(); l++) {
+          jsonStroke = (JSONObject) jsonFrame.getJSONArray("strokes").get(l);
+          int r = int(255.0 * jsonStroke.getJSONArray("color").getFloat(0));
+          int g = int(255.0 * jsonStroke.getJSONArray("color").getFloat(1));
+          int b = int(255.0 * jsonStroke.getJSONArray("color").getFloat(2));
+          color c = color(r,g,b);
+          ArrayList tempPoints = new ArrayList();
+          for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
+            jsonPoint = (JSONObject) jsonStroke.getJSONArray("points").get(m);
+            PVector p = new PVector(jsonPoint.getJSONArray("co").getFloat(0), jsonPoint.getJSONArray("co").getFloat(1), jsonPoint.getJSONArray("co").getFloat(2));
+            tempPoints.add(p);
+          }
+          Stroke s = new Stroke(tempPoints, c);
+          tempStrokes.add(s);
+        }
+      }
+    }
+  }
+  
+
  /*
  addMouseWheelListener(new MouseWheelListener() { 
     public void mouseWheelMoved(MouseWheelEvent mwe) { 
@@ -53,6 +91,10 @@ void draw() {
     }
   }
   //println(triggered);
+  for (int i=0; i<tempStrokes.size(); i++) {
+    Stroke s = (Stroke) tempStrokes.get(i);
+    s.run();
+  }
 }
 
 void posCheck(){

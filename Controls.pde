@@ -73,4 +73,3 @@ void mouseWheel(int delta) {
   posCheck();
   //println("mouse has moved by " + delta + " units."); 
 }
-
