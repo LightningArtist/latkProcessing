@@ -156,6 +156,7 @@ void buildVolume() {
     strokeCounter++;
     if (strokeCounter >= strokes.length) {
       objMain();
+      mayaKeysMain();
       println("...FINISHED rendering volume.");
     }
   }
