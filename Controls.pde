@@ -13,14 +13,17 @@ void controls() {
   loc.y=int(mouseY/scaleFactor);
   posCheck();
   }
-  if(mousePressed&!triggered){
-    loc.x=int(mouseX/scaleFactor);
-    loc.y=int(mouseY/scaleFactor);
-    posCheck();
-    if(!voxel[int(loc.x)][int(loc.y)][int(loc.z)].drawMe){
-      voxel[int(loc.x)][int(loc.y)][int(loc.z)].drawMe=true;
+  
+  if (drawMouse) {
+    if(mousePressed&!triggered){
+      loc.x=int(mouseX/scaleFactor);
+      loc.y=int(mouseY/scaleFactor);
+      posCheck();
+      if(!voxel[int(loc.x)][int(loc.y)][int(loc.z)].drawMe){
+        voxel[int(loc.x)][int(loc.y)][int(loc.z)].drawMe=true;
+      }
+      triggered=true;  
     }
-    triggered=true;  
   }
 }
 

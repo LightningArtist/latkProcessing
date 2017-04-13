@@ -7,8 +7,12 @@ JSONObject jsonLayer;
 JSONObject jsonFrame;
 JSONObject jsonStroke;
 JSONObject jsonPoint;
-String jsonFilename = "jellyfish";
+String jsonFilename = "layer_test";
 float globalScale = 500;
+int subPointSteps = 5;
+boolean showStrokes = false;
+boolean drawMouse = false;
+boolean selectMouse = false;
 
 PeasyCam cam;
 int sW = 64;
@@ -27,13 +31,74 @@ boolean triggered=false;
 
 Voxel[][][] voxel;
 
-ArrayList tempStrokes = new ArrayList();
+ArrayList<Stroke> tempStrokes = new ArrayList<Stroke>();
+Stroke[] strokes;
+int strokeCounter = 0;
 
 void setup() {
   size(50,50,P3D);
   Settings settings = new Settings("settings.txt");
   voxel = new Voxel[sW][sH][sD];
   surface.setSize(sW*scaleFactor, sH*scaleFactor);
+ /*
+ addMouseWheelListener(new MouseWheelListener() { 
+    public void mouseWheelMoved(MouseWheelEvent mwe) { 
+      mouseWheel(mwe.getWheelRotation());
+  }});
+  */
+  initVolume();
+  initLatk();
+  noCursor();
+  frameRate(fps);
+  cam = new PeasyCam(this,width/2,height/2,(width+height)/4, 500);
+  //cam.setMinimumDistance(50);
+  //cam.setMaximumDistance(500);
+}
+
+void draw() {
+  controls();
+  background(0);
+  
+  //println(triggered);
+  if (showStrokes) {
+    for (int i=0; i<strokes.length; i++) {
+      strokes[i].run();
+    }
+  }
+  
+  buildVolume();
+  refreshVolume();
+  
+  surface.setTitle(int(frameRate) + " fps");
+}
+
+void posCheck(){
+    if (loc.z > sD - 1) loc.z = sD - 1;
+    if (loc.z < 0) loc.z = 0;
+    if (loc.x > sW - 1) loc.x = sW - 1;
+    if (loc.x < 0) loc.x = 0;
+    if (loc.y > sH - 1) loc.y = sH - 1;
+    if (loc.y < 0) loc.y = 0;
+}
+
+void findCollision(PVector p, color c) {
+    for (int i=0;i<voxel.length;i++) {
+    for (int j=0;j<voxel[i].length;j++) {
+      for (int k=0;k<voxel[i][j].length;k++) {
+        if (!voxel[i][j][k].drawMe) {
+          PVector hitBox = new PVector(scaleFactor, scaleFactor, scaleFactor);
+          //if (hitDetect3D(p, new PVector(1,1,1), voxel[i][j][k].p, new PVector(voxel[i][j][k].s, voxel[i][j][k].s, voxel[i][j][k].s))) {
+          if (hitDetect3D(p, hitBox, voxel[i][j][k].p, hitBox)) {
+            voxel[i][j][k].drawMe = true;
+            voxel[i][j][k].c = c;
+          }
+        }
+      }
+    }
+  }  
+}
+
+void initLatk() {
   json = loadJSONObject(jsonFilename + ".json");
   for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
     jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
@@ -47,71 +112,66 @@ void setup() {
           int g = int(255.0 * jsonStroke.getJSONArray("color").getFloat(1));
           int b = int(255.0 * jsonStroke.getJSONArray("color").getFloat(2));
           color c = color(r,g,b);
-          ArrayList tempPoints = new ArrayList();
+          ArrayList<PVector> tempPoints = new ArrayList<PVector>();
           for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
             jsonPoint = (JSONObject) jsonStroke.getJSONArray("points").get(m);
             PVector p = new PVector(jsonPoint.getJSONArray("co").getFloat(0), jsonPoint.getJSONArray("co").getFloat(1), jsonPoint.getJSONArray("co").getFloat(2));
             tempPoints.add(p);
           }
-          Stroke s = new Stroke(tempPoints, c);
+          Stroke s = new Stroke(tempPoints.toArray(new PVector[tempPoints.size()]), c);
           tempStrokes.add(s);
         }
       }
     }
   }
-  
-
- /*
- addMouseWheelListener(new MouseWheelListener() { 
-    public void mouseWheelMoved(MouseWheelEvent mwe) { 
-      mouseWheel(mwe.getWheelRotation());
-  }});
-  */
-  initVolume();
-  noCursor();
-  frameRate(fps);
-  cam = new PeasyCam(this,width/2,height/2,(width+height)/4, 500);
-  //cam.setMinimumDistance(50);
-  //cam.setMaximumDistance(500);
+  strokes = tempStrokes.toArray(new Stroke[tempStrokes.size()]);
+  println("Latk strokes loaded.");
 }
 
-void draw() {
-  controls();
-  background(0);
-  for (int i=0;i<voxel.length;i++) {
-    for (int j=0;j<voxel[i].length;j++) {
-      for (int k=0;k<voxel[i][j].length;k++) {
-        voxel[i][j][k].selectMe=false;
-        voxel[i][j][k].sameZ=false;
-        voxel[int(loc.x)][int(loc.y)][int(loc.z)].selectMe=true;
-        voxel[i][j][int(loc.z)].sameZ=true;
-        voxel[i][j][k].run();
-      }
-    }
-  }
-  //println(triggered);
-  for (int i=0; i<tempStrokes.size(); i++) {
-    Stroke s = (Stroke) tempStrokes.get(i);
-    s.run();
-  }
-  
-  surface.setTitle(int(frameRate) + " fps");
-}
-
-void posCheck(){
-    if(loc.z > sD - 1) loc.z = sD - 1;
-    if(loc.z < 0) loc.z = 0;
-    if(loc.x > sW - 1) loc.x = sW - 1;
-    if(loc.x < 0) loc.x = 0;
-    if(loc.y > sH - 1) loc.y = sH - 1;
-    if(loc.y < 0) loc.y = 0;
-}
-
-void initVolume(){
+void initVolume() {
     for (int i=0;i<voxel.length;i++) {
     for (int j=0;j<voxel[i].length;j++) {
       for (int k=0;k<voxel[i][j].length;k++) {
         voxel[i][j][k] = new Voxel(i, j, k, scaleFactor);
+      }
+    }
+  }
+  println("Volume ready.");
+}
+
+void buildVolume() {
+  if (strokeCounter < strokes.length) {
+    if (strokeCounter==0) println("STARTED rendering volume...");
+    for (int i=1; i<strokes[strokeCounter].p.length; i++) {
+      //if (getDist(strokes[strokeCounter].p[i], strokes[strokeCounter].p[i-1]) > scaleFactor) {
+        PVector[] subPoints = pointsAlongLine(strokes[strokeCounter].p[i], strokes[strokeCounter].p[i-1], subPointSteps);
+        for (int j=0; j<subPoints.length; j++) {
+          findCollision(subPoints[j], strokes[strokeCounter].c);
+        }
+      //} else {
+        //findCollision(strokes[strokeCounter].p[i], strokes[strokeCounter].c);
+      //}
+    }
+    println("Stroke " + (strokeCounter + 1) + " / " + strokes.length); 
+    strokeCounter++;
+    if (strokeCounter >= strokes.length) {
+      objMain();
+      println("...FINISHED rendering volume.");
+    }
+  }
+}
+
+void refreshVolume() {
+  for (int i=0;i<voxel.length;i++) {
+    for (int j=0;j<voxel[i].length;j++) {
+      for (int k=0;k<voxel[i][j].length;k++) {
+        if (selectMouse) {
+          voxel[i][j][k].selectMe=false;
+          voxel[i][j][k].sameZ=false;
+          voxel[int(loc.x)][int(loc.y)][int(loc.z)].selectMe=true;
+          voxel[i][j][int(loc.z)].sameZ=true;
+        }
+        voxel[i][j][k].run();
       }
     }
   }

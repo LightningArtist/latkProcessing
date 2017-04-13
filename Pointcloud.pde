@@ -2,6 +2,9 @@ Data dataObj;
 String objFileName = "pointcloud";
 String objFilePath = "scripts";
 String objFileType = "obj";
+boolean useColors = true;
+boolean useNormals = false;
+PVector normal = new PVector(1,0,0);
 
 void objMain() {
   objBegin();
@@ -9,7 +12,19 @@ void objMain() {
     for (int j=0;j<voxel[i].length;j++) {
       for (int k=0;k<voxel[i][j].length;k++) {
         if (voxel[i][j][k].drawMe) {
-          dataObj.add("v " + (voxel[i][j][k].p.x) + " " + (voxel[i][j][k].p.y) + " " + (voxel[i][j][k].p.z));
+          String s = "v " + -voxel[i][j][k].p.x + " " + -voxel[i][j][k].p.y + " " + voxel[i][j][k].p.z;
+          
+          if (useColors) {
+            // https://gamedev.stackexchange.com/questions/21303/how-can-i-include-vertex-color-information-in-obj-files
+            float[] c = normalizeRgb(voxel[i][j][k].c);
+            s += " " + c[0] + " " + c[1] + " " + c[2];
+          }
+          
+          if (useNormals) {
+            dataObj.add("vn " + normal.x + " " + normal.y + " " + normal.z);
+          }
+          
+          dataObj.add(s);
         }
       }
     }

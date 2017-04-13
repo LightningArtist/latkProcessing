@@ -11,6 +11,8 @@ class Settings {
         if (settings.data[i].equals("Volume Height")) sH = setInt(settings.data[i+1]);
         if (settings.data[i].equals("Volume Depth")) sD = setInt(settings.data[i+1]);
         if (settings.data[i].equals("Display Scale Factor")) scaleFactor = setInt(settings.data[i+1]);
+        if (settings.data[i].equals("Subpoint Steps")) subPointSteps = setInt(settings.data[i+1]);
+        if (settings.data[i].equals("Global Scale")) globalScale = setFloat(settings.data[i+1]);
        }
     } 
     catch(Exception e) {
@@ -73,7 +75,8 @@ class Settings {
     int a = 0;
 
     for (int i=0;i<_s.length();i++) {
-        if (_s.charAt(i)!=char(' ') && _s.charAt(i)!=char('(') && _s.charAt(i)!=char(')')) {
+        //if (_s.charAt(i)!=char(' ') && _s.charAt(i)!=char('(') && _s.charAt(i)!=char(')')) {
+        if (_s.charAt(i)!=char(' ') && _s.charAt(i)!=char('(') && _s.charAt(i)!=char(')') && _s.charAt(i)!=char('{') && _s.charAt(i)!=char('}') && _s.charAt(i)!=char('[') && _s.charAt(i)!=char(']')) {
           if (_s.charAt(i)==char(',')){
             commaCounter++;
           }else{
@@ -87,26 +90,32 @@ class Settings {
 
     if (sr!="" && sg=="" && sb=="" && sa=="") {
       r = int(sr);
-      endColor = color(r);
+      endColor = color(r); // grayscale, no alpha
     }
     if (sr!="" && sg!="" && sb=="" && sa=="") {
       r = int(sr);
       g = int(sg);
-      endColor = color(r, g);
+      endColor = color(r, g); // grayscale, alpha
     }
     if (sr!="" && sg!="" && sb!="" && sa=="") {
       r = int(sr);
       g = int(sg);
       b = int(sb);
-      endColor = color(r, g, b);
+      endColor = color(r, g, b); // rgb, no alpha
     }
     if (sr!="" && sg!="" && sb!="" && sa!="") {
       r = int(sr);
       g = int(sg);
       b = int(sb);
       a = int(sa);
-      endColor = color(r, g, b, a);
+      endColor = color(r, g, b, a); // rgb, alpha
     }
       return endColor;
   }
+  
+  PVector setVector(String _s) {
+    String[] temp = setStringArray(_s);
+    return new PVector(float(temp[0]), float(temp[1]), float(temp[2]));
+  }
+  
 }

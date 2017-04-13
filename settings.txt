@@ -1,11 +1,16 @@
 Volume Width
-128
-
+100
 Volume Height
-72
+100
 
 Volume Depth
 100
 
 Display Scale Factor
 10
+
+Subpoint Steps
+1
+
+Global Scale
+100
