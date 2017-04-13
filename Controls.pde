@@ -64,12 +64,8 @@ void keyPressed(){
     }
 }
 
-/**
-Wheel mouse taken from http://wiki.processing.org/index.php/Wheel_mouse
-@author Rick Companje
-*/
-void mouseWheel(int delta) {
-  loc.z += delta;
+void mouseWheel(MouseEvent event) {
+  loc.z += event.getCount();
   posCheck();
   //println("mouse has moved by " + delta + " units."); 
 }

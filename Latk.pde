@@ -77,8 +77,7 @@ class Stroke {
       v.x *= globalScale;
       v.y *= globalScale;
       v.z *= globalScale;
-      //s.vertex((width/2) + v.x, (height/2) + -v.y, ((width + height) / 4) + v.z);
-      s.vertex(v.x, -v.y, v.z - 300);
+      s.vertex((width/2) + v.x, (height/2) + -v.y, ((width + height) / 4) + v.z);
     }
     s.endShape();
   }

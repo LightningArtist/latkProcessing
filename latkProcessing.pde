@@ -1,5 +1,4 @@
-import processing.opengl.*;
-import java.awt.event.*;
+//import java.awt.event.*;
 import peasy.*;
 
 JSONObject json;
@@ -8,8 +7,8 @@ JSONObject jsonLayer;
 JSONObject jsonFrame;
 JSONObject jsonStroke;
 JSONObject jsonPoint;
-String jsonFilename = "layer_test";
-float globalScale = 1000;
+String jsonFilename = "jellyfish";
+float globalScale = 500;
 
 PeasyCam cam;
 int sW = 64;
@@ -71,7 +70,7 @@ void setup() {
   initVolume();
   noCursor();
   frameRate(fps);
-  cam = new PeasyCam(this,0,0,0,50);
+  cam = new PeasyCam(this,width/2,height/2,(width+height)/4, 500);
   //cam.setMinimumDistance(50);
   //cam.setMaximumDistance(500);
 }
@@ -86,7 +85,7 @@ void draw() {
         voxel[i][j][k].sameZ=false;
         voxel[int(loc.x)][int(loc.y)][int(loc.z)].selectMe=true;
         voxel[i][j][int(loc.z)].sameZ=true;
-        voxel[i][j][k].update();
+        voxel[i][j][k].run();
       }
     }
   }
@@ -100,12 +99,12 @@ void draw() {
 }
 
 void posCheck(){
-    if(loc.z>sD-1) loc.z=sD-1;
-    if(loc.z<0) loc.z=0;
-    if(loc.x>sW-1) loc.x=sW-1;
-    if(loc.x<0) loc.x=0;
-    if(loc.y>sH-1) loc.y=sH-1;
-    if(loc.y<0) loc.y=0;
+    if(loc.z > sD - 1) loc.z = sD - 1;
+    if(loc.z < 0) loc.z = 0;
+    if(loc.x > sW - 1) loc.x = sW - 1;
+    if(loc.x < 0) loc.x = 0;
+    if(loc.y > sH - 1) loc.y = sH - 1;
+    if(loc.y < 0) loc.y = 0;
 }
 
 void initVolume(){
