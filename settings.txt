@@ -1,10 +1,10 @@
 Volume Width
-256
+64
 Volume Height
-256
+64
 
 Volume Depth
-256
+64
 
 Display Scale Factor
 5
@@ -13,4 +13,4 @@ Subpoint Steps
 5
 
 Global Scale
-500
+100

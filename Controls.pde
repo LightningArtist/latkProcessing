@@ -1,11 +1,14 @@
 void controls() {
   if (keyPressed) {
+    /*
     if (key=='w'||key=='W') offset.z += offsetDelta;
     if (key=='s'||key=='S') offset.z -= offsetDelta;
     if (key=='a'||key=='A') offset.x += offsetDelta;
     if (key=='d'||key=='D') offset.x -= offsetDelta;
     if (key=='e'||key=='E') offset.y += offsetDelta;
     if (key=='q'||key=='Q') offset.y -= offsetDelta;
+    */
+    if (key=='s') saveSlices();
   }
   if(mouseX!=pmouseX||mouseY!=pmouseY){
   triggered=false;

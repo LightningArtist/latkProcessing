@@ -72,6 +72,38 @@ void draw() {
   surface.setTitle(int(frameRate) + " fps");
 }
 
+void saveSlices() {
+  for (int i=0;i<voxel.length;i++) {
+    PGraphics slice = createGraphics(voxel.length, voxel[0].length);
+    slice.loadPixels();
+    for (int j=0;j<voxel[i].length;j++) {
+      for (int k=0;k<voxel[i][j].length;k++) {
+        //int pos = x + y * width;
+        int pos = j + k * i;
+        slice.pixels[pos] = voxel[i][j][k].c;
+      }
+    }
+    slice.updatePixels();
+    slice.save("test"+i+".png");
+  }
+}
+
+void loadSlices() {
+  initVolume();
+  for (int i=0;i<voxel.length;i++) {
+    PImage slice = loadImage("test"+i+".png");
+    slice.loadPixels();
+    for (int j=0;j<voxel[i].length;j++) {
+      for (int k=0;k<voxel[i][j].length;k++) {
+        //int pos = x + y * width;
+        int pos = j + k * i;
+        voxel[i][j][k].c = slice.pixels[pos];
+      }
+    }
+  }
+  refreshVolume();
+}
+
 void posCheck(){
     if (loc.z > sD - 1) loc.z = sD - 1;
     if (loc.z < 0) loc.z = 0;
@@ -82,7 +114,7 @@ void posCheck(){
 }
 
 void findCollision(PVector p, color c) {
-    for (int i=0;i<voxel.length;i++) {
+  for (int i=0;i<voxel.length;i++) {
     for (int j=0;j<voxel[i].length;j++) {
       for (int k=0;k<voxel[i][j].length;k++) {
         if (!voxel[i][j][k].drawMe) {
@@ -157,6 +189,7 @@ void buildVolume() {
     if (strokeCounter >= strokes.length) {
       objMain();
       mayaKeysMain();
+      blenderKeysMain();
       println("...FINISHED rendering volume.");
     }
   }
