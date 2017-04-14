@@ -11,7 +11,9 @@ void mayaKeysMain() {
         if(voxel[i][j][k].drawMe){
         dataMaya.add("polyCube()" + "\r");
         dataMaya.add("move(" + (voxel[i][j][k].p.x) + ", " + (voxel[i][j][k].p.y) + "," + (voxel[i][j][k].p.z) + ")" + "\r");
-        dataMaya.add("setKeyframe()" + "\r");
+        //dataMaya.add("setKeyframe()" + "\r");
+        float[] f = normalizeRgb(voxel[i][j][k].c);
+        dataMaya.add("polyColorPerVertex(colorRGB=(" + f[0] + ", " + f[1] + ", " + f[2] + "))" + "\r");
         }
       }
     }
