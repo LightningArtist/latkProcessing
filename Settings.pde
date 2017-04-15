@@ -13,6 +13,7 @@ class Settings {
         if (settings.data[i].equals("Display Scale Factor")) scaleFactor = setInt(settings.data[i+1]);
         if (settings.data[i].equals("Subpoint Steps")) subPointSteps = setInt(settings.data[i+1]);
         if (settings.data[i].equals("Global Scale")) globalScale = setFloat(settings.data[i+1]);
+        if (settings.data[i].equals("Load Slices")) doLoadSlices = setBoolean(settings.data[i+1]);
        }
     } 
     catch(Exception e) {

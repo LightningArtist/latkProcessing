@@ -13,8 +13,10 @@ int subPointSteps = 5;
 boolean showStrokes = false;
 boolean drawMouse = false;
 boolean selectMouse = false;
-boolean doLoadSlices = false;
-boolean doBuildVolume = true;
+int sliceCounter = 0;
+color vbgColor = color(0,0);
+
+boolean doLoadSlices = true;
 
 PeasyCam cam;
 int sW = 64;
@@ -67,13 +69,12 @@ void draw() {
       strokes[i].run();
     }
   }
-  
-  if (doLoadSlices) {
+
+  if (!doLoadSlices) {
+    buildVolume();
+  } else {
     loadSlices();
-    doLoadSlices = false;
   }
-  
-  if (doBuildVolume) buildVolume();
   
   refreshVolume();
   
@@ -100,22 +101,22 @@ void saveSlices() {
 }
 
 void loadSlices() {
-  for (int k=0;k<voxel[0][0].length;k++) {
-    PGraphics slice = createGraphics(voxel.length, voxel[0].length);
-    slice.beginDraw();
-    PImage sliceImg = loadImage("slices/test" + k + ".png");
-    slice.image(sliceImg,0,0);
+  if (sliceCounter < voxel[0][0].length) {
+  //for (int k=0;k<voxel[0][0].length;k++) {
+    PImage slice = loadImage("slices/test" + sliceCounter + ".png");
     slice.loadPixels();
     for (int i=0;i<voxel.length;i++) {
       for (int j=0;j<voxel[i].length;j++) {
         //int pos = x + y * width;
         int pos = i + j * voxel.length;
-        voxel[i][j][k].c = 255;//slice.pixels[pos];
+        if (alpha(slice.pixels[pos]) > 0) {
+          voxel[i][j][sliceCounter].c = slice.pixels[pos];
+          voxel[i][j][sliceCounter].drawMe=true;
+        }
       }
     }
-    slice.updatePixels();
-    slice.endDraw();
-    println("loaded img " + k);
+    println("loaded img " + sliceCounter);
+    sliceCounter++;
   }
 }
 

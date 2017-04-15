@@ -1,17 +1,20 @@
 Volume Width
-128
+512
 
 Volume Height
-128
+512
 
 Volume Depth
-128
+512
 
 Display Scale Factor
-10
+2
 
 Subpoint Steps
 5
 
 Global Scale
 500
+
+Load Slices
+false

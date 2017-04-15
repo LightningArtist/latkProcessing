@@ -9,7 +9,7 @@ class Voxel {
   Voxel(float _x, float _y, float _z, float _s) {
     p = new PVector(_x * scaleFactor, _y * scaleFactor, _z * scaleFactor);
     s = _s;
-    c = color(0,0);
+    c = vbgColor;//color(0,0);
   }
 
   void update() {
