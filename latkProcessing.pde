@@ -13,6 +13,8 @@ int subPointSteps = 5;
 boolean showStrokes = false;
 boolean drawMouse = false;
 boolean selectMouse = false;
+boolean doLoadSlices = false;
+boolean doBuildVolume = true;
 
 PeasyCam cam;
 int sW = 64;
@@ -66,42 +68,55 @@ void draw() {
     }
   }
   
-  buildVolume();
+  if (doLoadSlices) {
+    loadSlices();
+    doLoadSlices = false;
+  }
+  
+  if (doBuildVolume) buildVolume();
+  
   refreshVolume();
   
   surface.setTitle(int(frameRate) + " fps");
 }
 
 void saveSlices() {
-  for (int i=0;i<voxel.length;i++) {
+  for (int k=0;k<voxel[0][0].length;k++) {
     PGraphics slice = createGraphics(voxel.length, voxel[0].length);
+    slice.beginDraw();
     slice.loadPixels();
-    for (int j=0;j<voxel[i].length;j++) {
-      for (int k=0;k<voxel[i][j].length;k++) {
+    for (int i=0;i<voxel.length;i++) {
+      for (int j=0;j<voxel[i].length;j++) {
         //int pos = x + y * width;
-        int pos = j + k * i;
+        int pos = i + j * voxel.length;
         slice.pixels[pos] = voxel[i][j][k].c;
       }
     }
     slice.updatePixels();
-    slice.save("test"+i+".png");
+    slice.endDraw();
+    slice.save("slices/test" + k + ".png");
+    println("saved img " + k);
   }
 }
 
 void loadSlices() {
-  initVolume();
-  for (int i=0;i<voxel.length;i++) {
-    PImage slice = loadImage("test"+i+".png");
+  for (int k=0;k<voxel[0][0].length;k++) {
+    PGraphics slice = createGraphics(voxel.length, voxel[0].length);
+    slice.beginDraw();
+    PImage sliceImg = loadImage("slices/test" + k + ".png");
+    slice.image(sliceImg,0,0);
     slice.loadPixels();
-    for (int j=0;j<voxel[i].length;j++) {
-      for (int k=0;k<voxel[i][j].length;k++) {
+    for (int i=0;i<voxel.length;i++) {
+      for (int j=0;j<voxel[i].length;j++) {
         //int pos = x + y * width;
-        int pos = j + k * i;
-        voxel[i][j][k].c = slice.pixels[pos];
+        int pos = i + j * voxel.length;
+        voxel[i][j][k].c = 255;//slice.pixels[pos];
       }
     }
+    slice.updatePixels();
+    slice.endDraw();
+    println("loaded img " + k);
   }
-  refreshVolume();
 }
 
 void posCheck(){
@@ -188,8 +203,9 @@ void buildVolume() {
     strokeCounter++;
     if (strokeCounter >= strokes.length) {
       objMain();
-      mayaKeysMain();
-      blenderKeysMain();
+      //mayaKeysMain();
+      //blenderKeysMain();
+      saveSlices();
       println("...FINISHED rendering volume.");
     }
   }
