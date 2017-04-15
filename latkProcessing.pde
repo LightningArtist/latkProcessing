@@ -117,6 +117,11 @@ void loadSlices() {
     }
     println("loaded img " + sliceCounter);
     sliceCounter++;
+    if (sliceCounter==voxel[0][0].length) {
+      objMain();
+      mayaKeysMain();
+      blenderKeysMain();
+    }
   }
 }
 
@@ -203,7 +208,7 @@ void buildVolume() {
     println("Stroke " + (strokeCounter + 1) + " / " + strokes.length); 
     strokeCounter++;
     if (strokeCounter >= strokes.length) {
-      objMain();
+      //objMain();
       //mayaKeysMain();
       //blenderKeysMain();
       saveSlices();
