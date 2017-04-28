@@ -42,6 +42,14 @@ void initLatk() {
   println("Latk strokes loaded.");
 }
 
+void refreshLatk() {
+  if (showStrokes) {
+    for (int i=0; i<strokes.length; i++) {
+      strokes[i].run();
+    }
+  }
+}
+
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 class Layer {

@@ -51,11 +51,7 @@ void draw() {
   background(0);
   
   //println(triggered);
-  if (showStrokes) {
-    for (int i=0; i<strokes.length; i++) {
-      strokes[i].run();
-    }
-  }
+  refreshLatk();
 
   if (!doLoadSlices) {
     buildVolume();
