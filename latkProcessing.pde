@@ -1,16 +1,7 @@
 //import java.awt.event.*;
 import peasy.*;
 
-JSONObject json;
-JSONObject jsonGp;
-JSONObject jsonLayer;
-JSONObject jsonFrame;
-JSONObject jsonStroke;
-JSONObject jsonPoint;
-String jsonFilename = "layer_test";
-float globalScale = 500;
 int subPointSteps = 5;
-boolean showStrokes = false;
 boolean drawMouse = false;
 boolean selectMouse = false;
 int sliceCounter = 0;
@@ -34,10 +25,6 @@ float drawOdds = 0.001;
 boolean triggered=false;
 
 Voxel[][][] voxel;
-
-ArrayList<Stroke> tempStrokes = new ArrayList<Stroke>();
-Stroke[] strokes;
-int strokeCounter = 0;
 
 void setup() {
   size(50,50,P3D);
@@ -149,36 +136,6 @@ void findCollision(PVector p, color c) {
       }
     }
   }  
-}
-
-void initLatk() {
-  json = loadJSONObject(jsonFilename + ".json");
-  for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
-    jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
-    for (int i=0; i<jsonGp.getJSONArray("layers").size(); i++) {
-      jsonLayer = (JSONObject) jsonGp.getJSONArray("layers").get(i);
-      for (int j=0; j<jsonLayer.getJSONArray("frames").size(); j++) {
-        jsonFrame = (JSONObject) jsonLayer.getJSONArray("frames").get(j);
-        for (int l=0; l<jsonFrame.getJSONArray("strokes").size(); l++) {
-          jsonStroke = (JSONObject) jsonFrame.getJSONArray("strokes").get(l);
-          int r = int(255.0 * jsonStroke.getJSONArray("color").getFloat(0));
-          int g = int(255.0 * jsonStroke.getJSONArray("color").getFloat(1));
-          int b = int(255.0 * jsonStroke.getJSONArray("color").getFloat(2));
-          color c = color(r,g,b);
-          ArrayList<PVector> tempPoints = new ArrayList<PVector>();
-          for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
-            jsonPoint = (JSONObject) jsonStroke.getJSONArray("points").get(m);
-            PVector p = new PVector(jsonPoint.getJSONArray("co").getFloat(0), jsonPoint.getJSONArray("co").getFloat(1), jsonPoint.getJSONArray("co").getFloat(2));
-            tempPoints.add(p);
-          }
-          Stroke s = new Stroke(tempPoints.toArray(new PVector[tempPoints.size()]), c);
-          tempStrokes.add(s);
-        }
-      }
-    }
-  }
-  strokes = tempStrokes.toArray(new Stroke[tempStrokes.size()]);
-  println("Latk strokes loaded.");
 }
 
 void initVolume() {
