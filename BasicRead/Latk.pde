@@ -57,14 +57,18 @@ class Latk {
   }
   
   void run() {
+    boolean advanceFrame = false;
     timeInterval += millis() - lastMillis;
     if (timeInterval > fpsInterval) {
-      // TODO
+      advanceFrame = true;
       timeInterval = 0;
     }
+    println(fpsInterval + " " + timeInterval);
     
     for (int i=0; i<layers.size(); i++) {
-      layers.get(i).run();
+      LatkLayer layer = layers.get(i);
+      if (advanceFrame) layer.nextFrame();
+      layer.run();
     }
       
     lastMillis = millis();
@@ -82,13 +86,17 @@ class Latk {
 
 class LatkLayer {
   ArrayList<LatkFrame> frames = new ArrayList<LatkFrame>();
+  int currentFrame = 0;
   
   LatkLayer() { }
   
   void run() {
-    for (int i=0; i<frames.size(); i++) {
-      frames.get(i).run();
-    }
+    frames.get(currentFrame).run();
+  }
+  
+  void nextFrame() {
+    currentFrame++;
+    if (currentFrame > frames.size()-1) currentFrame = 0;
   }
   
   String write() {
