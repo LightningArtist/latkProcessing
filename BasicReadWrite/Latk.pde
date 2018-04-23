@@ -76,13 +76,7 @@ class Latk {
   }
   
   void run() {
-    boolean advanceFrame = false;
-    timeInterval += millis() - lastMillis;
-    if (timeInterval > fpsInterval) {
-      advanceFrame = true;
-      timeInterval = 0;
-    }
-    println(fpsInterval + " " + timeInterval);
+    boolean advanceFrame = checkInterval();
     
     for (int i=0; i<layers.size(); i++) {
       LatkLayer layer = layers.get(i);
@@ -91,6 +85,28 @@ class Latk {
     }
       
     lastMillis = millis();
+  }
+  
+  void run(PGraphics g) {
+    boolean advanceFrame = checkInterval();
+    
+    for (int i=0; i<layers.size(); i++) {
+      LatkLayer layer = layers.get(i);
+      if (advanceFrame) layer.nextFrame();
+      layer.run(g);
+    }
+      
+    lastMillis = millis();
+  }
+  
+  boolean checkInterval() {
+    boolean returns = false;
+    timeInterval += millis() - lastMillis;
+    if (timeInterval > fpsInterval) {
+      returns = true;
+      timeInterval = 0;
+    }
+    return returns;
   }
   
   void write() {
@@ -211,6 +227,10 @@ class LatkLayer {
     frames.get(currentFrame).run();
   }
   
+  void run(PGraphics g) {
+    frames.get(currentFrame).run(g);
+  }
+  
   void nextFrame() {
     currentFrame++;
     if (currentFrame > frames.size()-1) currentFrame = 0;
@@ -227,6 +247,12 @@ class LatkFrame {
   void run() {
     for (int i=0; i<strokes.size(); i++) {
       strokes.get(i).run();
+    }
+  }
+  
+  void run(PGraphics g) {
+    for (int i=0; i<strokes.size(); i++) {
+      strokes.get(i).run(g);
     }
   }
 }
@@ -250,6 +276,10 @@ class LatkStroke {
 
   void run() {
     shape(s);
+  }
+  
+  void run(PGraphics g) {
+    g.shape(s);
   }
   
   color getColor() {
