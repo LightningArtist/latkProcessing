@@ -19,6 +19,23 @@ class Latk {
   
   int currentLayer = 0;
   
+  Latk() {
+    layers.add(new LatkLayer());
+    layers.get(layers.size()-1).frames.add(new LatkFrame());
+  }
+  
+  Latk(ArrayList<PVector> _pts, color _c) {
+    layers.add(new LatkLayer());
+    layers.get(layers.size()-1).frames.add(new LatkFrame());
+    
+    LatkStroke st = new LatkStroke(_pts, _c);
+    layers.get(layers.size()-1).frames.get(layers.get(layers.size()-1).frames.size()-1).strokes.add(st);
+  }
+  
+  Latk(ArrayList<Latk> _latks) {
+    // TODO
+  }
+  
   Latk(String jsonFilename) {
     json = loadJSONObject(jsonFilename);
     

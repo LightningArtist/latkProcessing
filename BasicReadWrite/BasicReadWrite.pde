@@ -11,7 +11,7 @@ void setup() {
 
 void draw() {
   background(0);
-
+  
   latk.run();
   
   surface.setTitle(""+frameRate);
