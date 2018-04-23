@@ -1,18 +1,18 @@
 import peasy.PeasyCam;
 
 PeasyCam cam;
-Latk jellyfish;
+Latk latk;
 
 void setup() {
   size(800, 600, P3D);
   cam = new PeasyCam(this, 100);
-  jellyfish = new Latk("jellyfish.json");  
+  latk = new Latk("jellyfish.json");  
 }
 
 void draw() {
   background(0);
 
-  jellyfish.run();
+  latk.run();
   
   surface.setTitle(""+frameRate);
 }
