@@ -7,79 +7,115 @@ class Latk {
   JSONObject jsonStroke;
   JSONObject jsonPoint;
   
+  ArrayList<LatkLayer> layers = new ArrayList<LatkLayer>();
+
   String jsonFilename = "layer_test";
-  float globalScale = 500;
-  boolean showStrokes = true;
-  ArrayList<LatkStroke> tempStrokes = new ArrayList<LatkStroke>();
-  LatkStroke[] strokes;
-  int strokeCounter = 0;
+  float globalScale = 200;
+  int startTime = 0; 
+  int lastMillis = 0;
+  int timeInterval = 0;
+  float fps = 12.0;
+  int fpsInterval = int((1.0/fps) * 1000.0);
   
   Latk(String jsonFilename) {
     json = loadJSONObject(jsonFilename);
+    
     for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
       jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
+      
       for (int i=0; i<jsonGp.getJSONArray("layers").size(); i++) {
+        layers.add(new LatkLayer());
+        
         jsonLayer = (JSONObject) jsonGp.getJSONArray("layers").get(i);
         for (int j=0; j<jsonLayer.getJSONArray("frames").size(); j++) {
+          layers.get(layers.size()-1).frames.add(new LatkFrame());
+
           jsonFrame = (JSONObject) jsonLayer.getJSONArray("frames").get(j);
           for (int l=0; l<jsonFrame.getJSONArray("strokes").size(); l++) {
             jsonStroke = (JSONObject) jsonFrame.getJSONArray("strokes").get(l);
+            
             int r = int(255.0 * jsonStroke.getJSONArray("color").getFloat(0));
             int g = int(255.0 * jsonStroke.getJSONArray("color").getFloat(1));
             int b = int(255.0 * jsonStroke.getJSONArray("color").getFloat(2));
-            color c = color(r,g,b);
-            ArrayList<PVector> tempPoints = new ArrayList<PVector>();
+            color col = color(r,g,b);
+            
+            ArrayList<PVector> pts = new ArrayList<PVector>();
             for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
               jsonPoint = (JSONObject) jsonStroke.getJSONArray("points").get(m);
               PVector p = new PVector(jsonPoint.getJSONArray("co").getFloat(0), jsonPoint.getJSONArray("co").getFloat(1), jsonPoint.getJSONArray("co").getFloat(2));
-              tempPoints.add(p);
+              pts.add(p);
             }
-            LatkStroke s = new LatkStroke(tempPoints.toArray(new PVector[tempPoints.size()]), c, globalScale);
-            tempStrokes.add(s);
+            
+            LatkStroke st = new LatkStroke(pts, col, globalScale);
+            layers.get(layers.size()-1).frames.get(layers.get(layers.size()-1).frames.size()-1).strokes.add(st);
           }
         }
       }
     }
-    strokes = tempStrokes.toArray(new LatkStroke[tempStrokes.size()]);
+    startTime = millis();
     println("Latk strokes loaded.");
   }
   
   void run() {
-    if (showStrokes) {
-      for (int i=0; i<strokes.length; i++) {
-        strokes[i].run();
-      }
+    timeInterval += millis() - lastMillis;
+    if (timeInterval > fpsInterval) {
+      // TODO
+      timeInterval = 0;
     }
+    
+    for (int i=0; i<layers.size(); i++) {
+      layers.get(i).run();
+    }
+      
+    lastMillis = millis();
   }
+  
+  String write() {
+    ArrayList<String> returns = new ArrayList<String>();
+    //
+    return String.join("\n", returns.toArray(new String[returns.size()]));
+  } 
 
 }
 
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 class LatkLayer {
-  LatkFrame[] frames;
+  ArrayList<LatkFrame> frames = new ArrayList<LatkFrame>();
   
   LatkLayer() { }
   
   void run() {
-    for (int i=0; i<frames.length; i++) {
-      frames[i].run();
+    for (int i=0; i<frames.size(); i++) {
+      frames.get(i).run();
     }
   }
+  
+  String write() {
+    ArrayList<String> returns = new ArrayList<String>();
+    //
+    return String.join("\n", returns.toArray(new String[returns.size()]));
+  } 
 }
 
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 class LatkFrame {
-  LatkStroke[] strokes;
+  ArrayList<LatkStroke> strokes = new ArrayList<LatkStroke>();
   
   LatkFrame() { }
   
   void run() {
-    for (int i=0; i<strokes.length; i++) {
-      strokes[i].run();
+    for (int i=0; i<strokes.size(); i++) {
+      strokes.get(i).run();
     }
   }
+  
+  String write() {
+    ArrayList<String> returns = new ArrayList<String>();
+    //
+    return String.join("\n", returns.toArray(new String[returns.size()]));
+  } 
 }
 
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
@@ -87,28 +123,29 @@ class LatkFrame {
 class LatkStroke {
   
   PShape s;
-  PVector[] p;
-  color c;
+  ArrayList<PVector> p;
+  color c = color(255);
   float scaler = 1.0;
     
-  LatkStroke(PVector[] p, color c) {
-    init(p, c);
+  LatkStroke(ArrayList<PVector> _p, color _c) {
+    init(_p, _c);
   }
   
-  LatkStroke(PVector[] p, color c, float _scaler) {
+  LatkStroke(ArrayList<PVector> _p, color _c, float _scaler) {
     scaler = _scaler;
-    init(p, c);
+    init(_p, _c);
   }
   
-  void init(PVector[] p, color c) {
+  void init(ArrayList<PVector> _p, color _c) {
     s = createShape();
     s.beginShape();
     s.noFill();
-    s.stroke(c);
+    s.stroke(_c);
     s.strokeWeight(2);
-    for (int i=0; i<p.length; i++) {
-      p[i].mult(scaler);
-      s.vertex((width/2) + p[i].z, (height/2) + -p[i].y, ((width + height) / 4) + p[i].x);
+    for (int i=0; i<_p.size(); i++) {
+      PVector pt = _p.get(i).mult(scaler);
+      //s.vertex((width/2) + p[i].z, (height/2) + -p[i].y, ((width + height) / 4) + p[i].x);
+      s.vertex(pt.z, -pt.y, pt.x);
     }
     s.endShape();
     
@@ -116,16 +153,8 @@ class LatkStroke {
     c = getColor();
   }
 
-  void update() {
-    //
-  }
-  
-  void draw() {
-    shape(s);
-  }
-  
   void run() {
-    draw();
+    shape(s);
   }
   
   color getColor() {
@@ -133,20 +162,27 @@ class LatkStroke {
     return c;
   }
   
-  PVector[] getPoints() {
-    /*
-    ArrayList<PVector> p = new ArrayList<PVector>();
+  void setColor(color _c) {
+    // TODO
+  }
+  
+  ArrayList<PVector> getPoints() {
+    ArrayList<PVector> pts = new ArrayList<PVector>();
     for (int i=0; i<s.getVertexCount(); i++) {
-      p.add(s.getVertex(i));
+      pts.add(s.getVertex(i));
     }
-    return p.toArray(new PVector[p.size()]);
-    */
-    PVector[] pp = new PVector[s.getVertexCount()];
-    for (int i=0; i<pp.length; i++) {
-      pp[i] = s.getVertex(i);
-    }
-    p = pp;
+    p = pts;
     return p;
   }
+  
+  void setPoints(ArrayList<PVector> _p) {
+    // TODO
+  }
+  
+  String write() {
+    ArrayList<String> returns = new ArrayList<String>();
+    // TODO
+    return String.join("\n", returns.toArray(new String[returns.size()]));
+  }  
   
 }
