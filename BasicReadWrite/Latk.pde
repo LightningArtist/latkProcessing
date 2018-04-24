@@ -108,10 +108,11 @@ class Latk {
             for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
               jsonPoint = (JSONObject) jsonStroke.getJSONArray("points").get(m);
               PVector p = new PVector(jsonPoint.getJSONArray("co").getFloat(0), jsonPoint.getJSONArray("co").getFloat(1), jsonPoint.getJSONArray("co").getFloat(2));
-              pts.add(p.mult(globalScale));
+              pts.add(p);//.mult(globalScale));
             }
             
             LatkStroke st = new LatkStroke(pts, col);
+            st.globalScale = globalScale;
             layers.get(layers.size()-1).frames.get(layers.get(layers.size()-1).frames.size()-1).strokes.add(st);
           }
         }
@@ -150,7 +151,7 @@ class Latk {
                         sbb.add("\t\t\t\t\t\t\t\t\t\"points\":[");
                         for (int j = 0; j < layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size(); j++) {
                             PVector pt = layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.get(j);
-                            pt.mult(1.0/globalScale);
+                            //pt.mult(1.0/globalScale);
                             
                             if (j == layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size() - 1) {
                                 sbb.add("\t\t\t\t\t\t\t\t\t\t{\"co\":[" + pt.x + ", " + pt.y + ", " + pt.z + "], \"pressure\":1, \"strength\":1}");
@@ -274,6 +275,8 @@ class LatkStroke {
   PShape s;
   ArrayList<PVector> points;
   color col = color(255);
+  float globalScale = 1;
+  PVector globalOffset = new PVector(0,0,0);
     
   LatkStroke(ArrayList<PVector> _p, color _c) {
     init(_p, _c);
@@ -285,11 +288,17 @@ class LatkStroke {
   }
 
   void run() {
+    pushMatrix();
+    scale(globalScale, globalScale, globalScale);
     shape(s);
+    popMatrix();
   }
   
   void run(PGraphics g) {
+    g.pushMatrix();
+    g.scale(globalScale, globalScale, globalScale);
     g.shape(s);
+    g.popMatrix();
   }
   
   color getColor() {
