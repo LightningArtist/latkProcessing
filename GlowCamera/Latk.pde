@@ -7,7 +7,7 @@ class Latk {
   JSONObject jsonStroke;
   JSONObject jsonPoint;
   
-  ArrayList<LatkLayer> layers = new ArrayList<LatkLayer>();
+  ArrayList<LatkLayer> layers;
 
   String jsonFilename = "layer_test";
   float globalScale = 200;
@@ -20,11 +20,13 @@ class Latk {
   int currentLayer = 0;
   
   Latk() {
+    layers = new ArrayList<LatkLayer>();
     layers.add(new LatkLayer());
     layers.get(layers.size()-1).frames.add(new LatkFrame());
   }
   
   Latk(ArrayList<PVector> _pts, color _c) {
+    layers = new ArrayList<LatkLayer>();
     layers.add(new LatkLayer());
     layers.get(layers.size()-1).frames.add(new LatkFrame());
     
@@ -34,43 +36,12 @@ class Latk {
   
   Latk(ArrayList<Latk> _latks) {
     // TODO
+    // read with clear existing false
   }
   
-  Latk(String jsonFilename) {
-    json = loadJSONObject(jsonFilename);
-    
-    for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
-      jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
-      
-      for (int i=0; i<jsonGp.getJSONArray("layers").size(); i++) {
-        layers.add(new LatkLayer());
-        
-        jsonLayer = (JSONObject) jsonGp.getJSONArray("layers").get(i);
-        for (int j=0; j<jsonLayer.getJSONArray("frames").size(); j++) {
-          layers.get(layers.size()-1).frames.add(new LatkFrame());
-
-          jsonFrame = (JSONObject) jsonLayer.getJSONArray("frames").get(j);
-          for (int l=0; l<jsonFrame.getJSONArray("strokes").size(); l++) {
-            jsonStroke = (JSONObject) jsonFrame.getJSONArray("strokes").get(l);
-            
-            int r = int(255.0 * jsonStroke.getJSONArray("color").getFloat(0));
-            int g = int(255.0 * jsonStroke.getJSONArray("color").getFloat(1));
-            int b = int(255.0 * jsonStroke.getJSONArray("color").getFloat(2));
-            color col = color(r,g,b);
-            
-            ArrayList<PVector> pts = new ArrayList<PVector>();
-            for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
-              jsonPoint = (JSONObject) jsonStroke.getJSONArray("points").get(m);
-              PVector p = new PVector(jsonPoint.getJSONArray("co").getFloat(0), jsonPoint.getJSONArray("co").getFloat(1), jsonPoint.getJSONArray("co").getFloat(2));
-              pts.add(p.mult(globalScale));
-            }
-            
-            LatkStroke st = new LatkStroke(pts, col);
-            layers.get(layers.size()-1).frames.get(layers.get(layers.size()-1).frames.size()-1).strokes.add(st);
-          }
-        }
-      }
-    }
+  Latk(String fileName) {
+    read(fileName, true);
+  
     startTime = millis();
     println("Latk strokes loaded.");
   }
@@ -109,7 +80,46 @@ class Latk {
     return returns;
   }
   
-  void write() {
+  void read(String fileName, boolean clearExisting) {
+    if (clearExisting) layers = new ArrayList<LatkLayer>();
+    
+    json = loadJSONObject(fileName);
+    
+    for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
+      jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
+      
+      for (int i=0; i<jsonGp.getJSONArray("layers").size(); i++) {
+        layers.add(new LatkLayer());
+        
+        jsonLayer = (JSONObject) jsonGp.getJSONArray("layers").get(i);
+        for (int j=0; j<jsonLayer.getJSONArray("frames").size(); j++) {
+          layers.get(layers.size()-1).frames.add(new LatkFrame());
+
+          jsonFrame = (JSONObject) jsonLayer.getJSONArray("frames").get(j);
+          for (int l=0; l<jsonFrame.getJSONArray("strokes").size(); l++) {
+            jsonStroke = (JSONObject) jsonFrame.getJSONArray("strokes").get(l);
+            
+            int r = int(255.0 * jsonStroke.getJSONArray("color").getFloat(0));
+            int g = int(255.0 * jsonStroke.getJSONArray("color").getFloat(1));
+            int b = int(255.0 * jsonStroke.getJSONArray("color").getFloat(2));
+            color col = color(r,g,b);
+            
+            ArrayList<PVector> pts = new ArrayList<PVector>();
+            for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
+              jsonPoint = (JSONObject) jsonStroke.getJSONArray("points").get(m);
+              PVector p = new PVector(jsonPoint.getJSONArray("co").getFloat(0), jsonPoint.getJSONArray("co").getFloat(1), jsonPoint.getJSONArray("co").getFloat(2));
+              pts.add(p.mult(globalScale));
+            }
+            
+            LatkStroke st = new LatkStroke(pts, col);
+            layers.get(layers.size()-1).frames.get(layers.get(layers.size()-1).frames.size()-1).strokes.add(st);
+          }
+        }
+      }
+    }
+  }
+  
+  void write(String fileName) {
         ArrayList<String> FINAL_LAYER_LIST = new ArrayList<String>();
 
         for (int hh = 0; hh < layers.size(); hh++) {
@@ -207,7 +217,7 @@ class Latk {
         s.add("    ]");
         s.add("}");
 
-        String url = "test.json";
+        String url = fileName;
 
         saveStrings(url, s.toArray(new String[s.size()]));
     }
