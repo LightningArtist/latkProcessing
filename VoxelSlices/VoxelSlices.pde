@@ -7,7 +7,7 @@ boolean selectMouse = false;
 int sliceCounter = 0;
 color vbgColor = color(0,0);
 
-boolean doLoadSlices = true;
+boolean doLoadSlices = false;
 
 PeasyCam cam;
 int sW = 64;
@@ -23,12 +23,12 @@ PVector loc = new PVector(0, 0, 0);
 float offsetDelta = 10;
 float drawOdds = 0.001;
 boolean triggered=false;
-
+Settings settings;
 Voxel[][][] voxel;
 
 void setup() {
   size(50,50,P3D);
-  Settings settings = new Settings("settings.txt");
+  settings = new Settings("settings.txt");
   voxel = new Voxel[sW][sH][sD];
   surface.setSize(sW*scaleFactor, sH*scaleFactor);
  /*
@@ -54,12 +54,12 @@ void draw() {
   refreshLatk();
 
   if (!doLoadSlices) {
-    buildVolume();
+    //buildVolume();
   } else {
-    loadSlices();
+    //loadSlices();
   }
   
-  refreshVolume();
+  //refreshVolume();
   
   surface.setTitle(int(frameRate) + " fps");
 }
