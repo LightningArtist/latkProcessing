@@ -14,6 +14,27 @@ void setup() {
   obj = new MeshObj(loadShape("battle_pod_remesh.obj"));
   pointCloud = new RgbPointCloud(obj);
   pointCloud.sortByDistance();
+  ArrayList<PVector> points = new ArrayList<PVector>();
+  
+  PVector lastPoint = new PVector(-9999, 9999, -9999);
+  
+  for(int i=1; i<pointCloud.points.size(); i++) {
+    RgbPoint rp1 = pointCloud.points.get(i-1);
+    RgbPoint rp2 = pointCloud.points.get(i);
+    stroke(rp2.c, 200);
+
+    float maxDist = 0.2;
+    float getDist = PVector.dist(rp1.xyz, rp2.xyz);
+    println(getDist);
+    if (getDist < maxDist && rp1.xyz != lastPoint) {
+      points.add(new PVector(rp1.xyz.x, rp1.xyz.y, rp1.xyz.z));  
+      lastPoint = new PVector(rp1.xyz.x, rp1.xyz.y, rp1.xyz.z);
+    } else {
+      LatkStroke s = new LatkStroke(points, color(255));
+      latk.layers.get(0).frames.get(0).strokes.add(s);
+      points = new ArrayList<PVector>();
+    }
+  }
 }
 
 void draw() {
@@ -26,24 +47,16 @@ void draw() {
   rotateX(radians(180));
   rotateY(radians(90));
   
+  strokeWeight(0.004);
+
   //obj.draw();
+  
   //pointCloud.draw();
   
-  strokeWeight(0.004);
-  
-  for(int i=1; i<pointCloud.points.size(); i++) {
-    RgbPoint rp1 = pointCloud.points.get(i-1);
-    RgbPoint rp2 = pointCloud.points.get(i);
-    stroke(rp2.c, 200);
-
-    if (PVector.dist(rp1.xyz, rp2.xyz) < 0.2) {
-      line(rp1.xyz.x, rp1.xyz.y, rp1.xyz.z, rp2.xyz.x, rp2.xyz.y, rp2.xyz.z);    
-    }
-  }
+  latk.run();
   
   popMatrix();
 
-  //latk.run();
 
   surface.setTitle(""+frameRate);
 }
