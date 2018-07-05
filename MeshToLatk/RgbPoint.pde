@@ -84,6 +84,26 @@ class RgbPointCloud {
     });
   }
   
+  void smoother(int reps) {
+    for (int h=0; h<reps; h++) {
+      ArrayList<RgbPoint> newPoints = new ArrayList<RgbPoint>();
+      
+      for(int i=1; i<points.size(); i++) {
+        RgbPoint rp1 = points.get(i-1);
+        RgbPoint rp2 = points.get(i);  
+        if (PVector.dist(rp1.xyz, rp2.xyz) < 0.2) {
+          PVector avg = rp1.xyz.add(rp2.xyz).mult(0.5);
+          RgbPoint rp3 = new RgbPoint(avg, rp2.c);
+          newPoints.add(rp1); 
+          newPoints.add(rp3); 
+          newPoints.add(rp2); 
+        }
+      }
+      
+      points = newPoints;
+    }
+  }
+  
 }
 
 class RgbPoint {
