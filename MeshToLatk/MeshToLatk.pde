@@ -15,9 +15,7 @@ void setup() {
   pointCloud = new RgbPointCloud(obj);
   pointCloud.sortByDistance();
   ArrayList<PVector> points = new ArrayList<PVector>();
-  
-  PVector lastPoint = new PVector(-9999, 9999, -9999);
-  
+    
   for(int i=1; i<pointCloud.points.size(); i++) {
     RgbPoint rp1 = pointCloud.points.get(i-1);
     RgbPoint rp2 = pointCloud.points.get(i);
@@ -25,16 +23,26 @@ void setup() {
 
     float maxDist = 0.2;
     float getDist = PVector.dist(rp1.xyz, rp2.xyz);
-    println(getDist);
-    if (getDist < maxDist && rp1.xyz != lastPoint) {
+    
+    if (getDist < maxDist) {
       points.add(new PVector(rp1.xyz.x, rp1.xyz.y, rp1.xyz.z));  
-      lastPoint = new PVector(rp1.xyz.x, rp1.xyz.y, rp1.xyz.z);
     } else {
-      LatkStroke s = new LatkStroke(points, color(255));
-      latk.layers.get(0).frames.get(0).strokes.add(s);
+      ArrayList<PVector> cleanedPoints = new ArrayList<PVector>();
+      cleanedPoints.add(points.get(0));
+      for (int j=1; j<points.size(); j++) {
+        PVector p1 = points.get(j-1);
+        PVector p2 = points.get(j);
+        if (PVector.dist(p1, p2) > 0.001) cleanedPoints.add(p2);
+      }
+      if (cleanedPoints.size() > 1) {
+        LatkStroke s = new LatkStroke(points, color(255));
+        latk.layers.get(0).frames.get(0).strokes.add(s);
+      }
       points = new ArrayList<PVector>();
     }
   }
+  
+  latk.clean();
 }
 
 void draw() {
