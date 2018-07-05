@@ -1,6 +1,9 @@
+import java.util.*;
+
 class RgbPointCloud {
 
   ArrayList<RgbPoint> points;
+  
   float strokeWeightVal = 0.01;
 
   RgbPointCloud() {
@@ -26,7 +29,7 @@ class RgbPointCloud {
       RgbPoint rp = points.get(i);
       stroke(rp.c);
       strokeWeight(strokeWeightVal);
-      point(rp.x, rp.y, rp.z);
+      point(rp.xyz.x, rp.xyz.y, rp.xyz.z);
     }  
   }
   
@@ -46,60 +49,74 @@ class RgbPointCloud {
     points.add(new RgbPoint(_x, _y, _z, _c));
   }  
   
+  void sortByDistance() {
+    RgbPoint firstPoint = points.get(0);
+    for(int i=1; i<points.size(); i++) {
+      RgbPoint rp = points.get(i);
+      rp.xyzDistance = PVector.dist(firstPoint.xyz, rp.xyz);
+    }
+    
+    // https://stackoverflow.com/questions/16252269/how-to-sort-an-arraylist
+    Collections.sort(points, new Comparator<RgbPoint>() {
+        @Override
+        public int compare(RgbPoint lhs, RgbPoint rhs) {
+            // -1 less than, 1 greater than, 0 equal, all inversed for descending
+            return lhs.xyzDistance < rhs.xyzDistance ? -1 : (lhs.xyzDistance > rhs.xyzDistance) ? 1 : 0;
+        }
+    });
+  }
+  
+  void sortByColor() {
+    RgbPoint firstPoint = points.get(0);
+    
+    for(int i=1; i<points.size(); i++) {
+      RgbPoint rp = points.get(i);
+      rp.rgbDistance = PVector.dist(firstPoint.rgb, rp.rgb);
+    }
+    
+    // https://stackoverflow.com/questions/16252269/how-to-sort-an-arraylist
+    Collections.sort(points, new Comparator<RgbPoint>() {
+        @Override
+        public int compare(RgbPoint lhs, RgbPoint rhs) {
+            // -1 less than, 1 greater than, 0 equal, all inversed for descending
+            return lhs.rgbDistance < rhs.rgbDistance ? -1 : (lhs.rgbDistance > rhs.rgbDistance) ? 1 : 0;
+        }
+    });
+  }
+  
 }
 
 class RgbPoint {
 
-  PVector p;
+  PVector xyz;
+  PVector rgb;
   color c;
-  float x, y, z, r, g, b;
   
-  RgbPoint(float _x, float _y, float _z, float _r, float _g, float _b) {
-    x = _x;
-    y = _y;
-    z = _z;
-    r = _r;
-    g = _g;
-    b = _b;
-    
-    p = new PVector(x, y, z);
-    c = color(r, g, b);
+  float xyzDistance = 0;
+  float rgbDistance = 0;
+  
+  RgbPoint(float _x, float _y, float _z, float _r, float _g, float _b) {    
+    xyz = new PVector(_x, _y, _z);
+    rgb = new PVector(_r, _g, _b);
+    c = color(_r, _g, _b);
   }
   
-  RgbPoint(PVector _p, float _r, float _g, float _b) {
-    p = _p;
-    r = _r;
-    g = _g;
-    b = _b;
-    
-    x = p.x;
-    y = p.y;
-    z = p.z;
-    c = color(r, g, b);
+  RgbPoint(PVector _xyz, float _r, float _g, float _b) {
+    xyz = _xyz;
+    rgb = new PVector(_r, _g, _b);
+    c = color(_r, _g, _b);
   }
   
-  RgbPoint(PVector _p, color _c) {
-    p = _p;
+  RgbPoint(PVector _xyz, color _c) {
+    xyz = _xyz;
+    rgb = new PVector(red(_c), green(_c), blue(_c));
     c = _c;
-    
-    x = p.x;
-    y = p.y;
-    z = p.z;
-    r = red(c);
-    g = green(c);
-    b = blue(c);
   }
   
-  RgbPoint(float _x, float _y, float _z, color _c) {
-    x = _x;
-    y = _y;
-    z = _z;
+  RgbPoint(float _x, float _y, float _z, color _c) {  
+    xyz = new PVector(_x, _y, _z);
+    rgb = new PVector(red(_c), green(_c), blue(_c));
     c = _c;
-    
-    p = new PVector(x, y, z);
-    r = red(c);
-    g = green(c);
-    b = blue(c);
   }
   
 }
