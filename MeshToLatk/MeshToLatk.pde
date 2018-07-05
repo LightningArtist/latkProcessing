@@ -4,13 +4,15 @@ PeasyCam cam;
 
 MeshObj obj;
 Latk latk;
+RgbPointCloud pointCloud;
 
 void setup() {
   size(1280, 720, P3D);
   cam = new PeasyCam(this, 400);
   
-  latk = new Latk("jellyfish.json");
+  latk = new Latk();
   obj = new MeshObj(loadShape("battle_pod_tri.obj"));
+  pointCloud = new RgbPointCloud(obj);
 }
 
 void draw() {
@@ -23,11 +25,12 @@ void draw() {
   rotateX(radians(180));
   rotateY(radians(90));
   
-  obj.draw();
+  //obj.draw();
+  pointCloud.draw();
   
   popMatrix();
 
-  latk.run();
+  //latk.run();
 
   surface.setTitle(""+frameRate);
 }
