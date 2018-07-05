@@ -325,7 +325,8 @@ class LatkStroke {
     s.strokeWeight(2);
     for (int i=0; i<_p.size(); i++) {
       PVector pt = _p.get(i);
-      s.vertex(pt.z, -pt.y, pt.x);
+      //s.vertex(pt.z, -pt.y, pt.x);
+      s.vertex(pt.x, pt.y, pt.z);
     }
     s.endShape();
     points = _p;
