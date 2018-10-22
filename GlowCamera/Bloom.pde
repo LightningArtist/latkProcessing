@@ -28,6 +28,9 @@ void bloomDraw() {
 // Or, for a more complex scene, this goes at the beginning of the draw loop...
 void bloomMatrixStart() {
   pushMatrix();
+  float fov = PI/3.0;
+  float cameraZ = (tex.height/2.0) / tan(fov/2.0);
+  tex.perspective(fov, float(tex.width)/float(tex.height), cameraZ/100.0, cameraZ*100.0);  
 }
 
 // ...and this goes at the end.
