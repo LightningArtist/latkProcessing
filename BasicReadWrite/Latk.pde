@@ -1,3 +1,13 @@
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
+import java.util.Enumeration;
+
 class Latk {
   
   JSONObject json;
@@ -83,7 +93,28 @@ class Latk {
   void read(String fileName, boolean clearExisting) {
     if (clearExisting) layers = new ArrayList<LatkLayer>();
     
-    json = loadJSONObject(fileName);
+    try {
+      String url = new File(dataPath(""), fileName).toString();
+      ZipFile zipFile = new ZipFile(url + ".latk");
+    
+      InputStream stream = zipFile.getInputStream(zipFile.getEntry(fileName + ".json"));
+
+      String newLine = System.getProperty("line.separator");
+      BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+      StringBuilder result = new StringBuilder();
+      boolean flag = false;
+      for (String line; (line = reader.readLine()) != null; ) {
+        result.append(flag? newLine: "").append(line);
+        flag = true;
+      }
+      
+      json = parseJSONObject(result.toString());
+
+      zipFile.close();
+    } catch (Exception e) {
+      println(e);
+    }
+
     
     for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
       jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
@@ -218,11 +249,25 @@ class Latk {
         s.add("    ]");
         s.add("}");
 
-        String url = fileName;
-
-        saveStrings(url, s.toArray(new String[s.size()]));
+        String url = sketchPath("") + fileName;
+        //saveStrings(url, s.toArray(new String[s.size()]));
+                
+        try {
+          File f = new File(url + ".latk");
+          ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f));
+          ZipEntry e = new ZipEntry(fileName + ".json");
+          out.putNextEntry(e);
+          
+          byte[] data = String.join("\n", s.toArray(new String[s.size()])).getBytes();
+          out.write(data, 0, data.length);
+          out.closeEntry();
+          
+          out.close();
+        } catch (Exception e) {
+          //
+        }
     }
-
+    
 }
 
 // ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
