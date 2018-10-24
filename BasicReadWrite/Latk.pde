@@ -7,6 +7,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import java.util.Enumeration;
+import java.util.regex.Pattern;
 
 class Latk {
   
@@ -90,14 +91,33 @@ class Latk {
     return returns;
   }
   
+  String getFileNameNoExt(String s) {
+    String returns = "";
+    String[] temp = s.split(Pattern.quote("."));
+    if (temp.length > 1) {
+      for (int i=0; i<temp.length-1; i++) {
+        if (i > 0) returns += ".";
+        returns += temp[i];
+      }
+    } else {
+      return s;
+    }
+    return returns;
+  }
+  
+  String getExtFromFileName(String s) {
+    String[] temp = s.split(Pattern.quote("."));
+    return temp[temp.length-1];
+  }
+  
   void read(String fileName, boolean clearExisting) {
     if (clearExisting) layers = new ArrayList<LatkLayer>();
     
     try {
       String url = new File(dataPath(""), fileName).toString();
-      ZipFile zipFile = new ZipFile(url + ".latk");
+      ZipFile zipFile = new ZipFile(url);
     
-      InputStream stream = zipFile.getInputStream(zipFile.getEntry(fileName + ".json"));
+      InputStream stream = zipFile.getInputStream(zipFile.getEntry(getFileNameNoExt(fileName) + ".json"));
 
       String newLine = System.getProperty("line.separator");
       BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
@@ -253,9 +273,9 @@ class Latk {
         //saveStrings(url, s.toArray(new String[s.size()]));
                 
         try {
-          File f = new File(url + ".latk");
+          File f = new File(url);
           ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f));
-          ZipEntry e = new ZipEntry(fileName + ".json");
+          ZipEntry e = new ZipEntry(getFileNameNoExt(fileName) + ".json");
           out.putNextEntry(e);
           
           byte[] data = String.join("\n", s.toArray(new String[s.size()])).getBytes();
