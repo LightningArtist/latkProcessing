@@ -4,7 +4,7 @@ void keyPressed() {
   }
   
   if (key == 'o') {
-    latk.write("test.latk");
+    latk.write("test.json");
   }
   
 }
