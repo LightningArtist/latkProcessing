@@ -1,3 +1,14 @@
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipOutputStream;
+import java.util.Enumeration;
+import java.util.regex.Pattern;
+
 class Latk {
   
   JSONObject json;
@@ -83,10 +94,55 @@ class Latk {
     return returns;
   }
   
+  String getFileNameNoExt(String s) {
+    String returns = "";
+    String[] temp = s.split(Pattern.quote("."));
+    if (temp.length > 1) {
+      for (int i=0; i<temp.length-1; i++) {
+        if (i > 0) returns += ".";
+        returns += temp[i];
+      }
+    } else {
+      return s;
+    }
+    return returns;
+  }
+  
+  String getExtFromFileName(String s) {
+    String returns = "";
+    String[] temp = s.split(Pattern.quote("."));
+    returns = temp[temp.length-1];
+    return returns;
+  }
+  
   void read(String fileName, boolean clearExisting) {
     if (clearExisting) layers = new ArrayList<LatkLayer>();
     
-    json = loadJSONObject(fileName);
+    if (getExtFromFileName(fileName).equals("json")) {
+      json = loadJSONObject(fileName);
+    } else {
+      try {
+        String url = new File(dataPath(""), fileName).toString();
+        ZipFile zipFile = new ZipFile(url);
+      
+        InputStream stream = zipFile.getInputStream(zipFile.getEntry(getFileNameNoExt(fileName) + ".json"));
+  
+        String newLine = System.getProperty("line.separator");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuilder result = new StringBuilder();
+        boolean flag = false;
+        for (String line; (line = reader.readLine()) != null; ) {
+          result.append(flag? newLine: "").append(line);
+          flag = true;
+        }
+        
+        json = parseJSONObject(result.toString());
+  
+        zipFile.close();
+      } catch (Exception e) {
+        println(e);
+      }
+    }
     
     for (int h=0; h<json.getJSONArray("grease_pencil").size(); h++) {
       jsonGp = (JSONObject) json.getJSONArray("grease_pencil").get(h);
@@ -124,108 +180,125 @@ class Latk {
   }
   
   void write(String fileName) {
-      ArrayList<String> FINAL_LAYER_LIST = new ArrayList<String>();
+    ArrayList<String> FINAL_LAYER_LIST = new ArrayList<String>();
 
-      for (int hh = 0; hh < layers.size(); hh++) {
-          currentLayer = hh;
+    for (int hh = 0; hh < layers.size(); hh++) {
+        currentLayer = hh;
 
-          ArrayList<String> sb = new ArrayList<String>();
-          ArrayList<String> sbHeader = new ArrayList<String>();
-          sbHeader.add("\t\t\t\t\t\"frames\":[");
-          sb.add(String.join("\n", sbHeader.toArray(new String[sbHeader.size()])));
+        ArrayList<String> sb = new ArrayList<String>();
+        ArrayList<String> sbHeader = new ArrayList<String>();
+        sbHeader.add("\t\t\t\t\t\"frames\":[");
+        sb.add(String.join("\n", sbHeader.toArray(new String[sbHeader.size()])));
 
-          for (int h = 0; h < layers.get(currentLayer).frames.size(); h++) {
-              layers.get(currentLayer).currentFrame = h;
+        for (int h = 0; h < layers.get(currentLayer).frames.size(); h++) {
+            layers.get(currentLayer).currentFrame = h;
 
-              ArrayList<String> sbbHeader = new ArrayList<String>();
-              sbbHeader.add("\t\t\t\t\t\t{");
-              sbbHeader.add("\t\t\t\t\t\t\t\"strokes\":[");
-              sb.add(String.join("\n", sbbHeader.toArray(new String[sbbHeader.size()])));
-              for (int i = 0; i < layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.size(); i++) {
-                  ArrayList<String> sbb = new ArrayList<String>();
-                  sbb.add("\t\t\t\t\t\t\t\t{");
-                  color col = layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).col;
-                  float r = red(col) / 255.0;
-                  float g = green(col) / 255.0;
-                  float b = blue(col) / 255.0;
-                  sbb.add("\t\t\t\t\t\t\t\t\t\"color\":[" + r + ", " + g + ", " + b + "],");
+            ArrayList<String> sbbHeader = new ArrayList<String>();
+            sbbHeader.add("\t\t\t\t\t\t{");
+            sbbHeader.add("\t\t\t\t\t\t\t\"strokes\":[");
+            sb.add(String.join("\n", sbbHeader.toArray(new String[sbbHeader.size()])));
+            for (int i = 0; i < layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.size(); i++) {
+                ArrayList<String> sbb = new ArrayList<String>();
+                sbb.add("\t\t\t\t\t\t\t\t{");
+                color col = layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).col;
+                float r = red(col) / 255.0;
+                float g = green(col) / 255.0;
+                float b = blue(col) / 255.0;
+                sbb.add("\t\t\t\t\t\t\t\t\t\"color\":[" + r + ", " + g + ", " + b + "],");
 
-                  if (layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size() > 0) {
-                      sbb.add("\t\t\t\t\t\t\t\t\t\"points\":[");
-                      for (int j = 0; j < layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size(); j++) {
-                          PVector pt = layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.get(j);
-                          //pt.mult(1.0/globalScale);
-                          
-                          if (j == layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size() - 1) {
-                              sbb.add("\t\t\t\t\t\t\t\t\t\t{\"co\":[" + pt.x + ", " + pt.y + ", " + pt.z + "], \"pressure\":1, \"strength\":1}");
-                              sbb.add("\t\t\t\t\t\t\t\t\t]");
-                          } else {
-                              sbb.add("\t\t\t\t\t\t\t\t\t\t{\"co\":[" + pt.x + ", " + pt.y + ", " + pt.z + "], \"pressure\":1, \"strength\":1},");
-                          }
-                      }
-                  } else {
-                      sbb.add("\t\t\t\t\t\t\t\t\t\"points\":[]");
-                  }
+                if (layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size() > 0) {
+                    sbb.add("\t\t\t\t\t\t\t\t\t\"points\":[");
+                    for (int j = 0; j < layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size(); j++) {
+                        PVector pt = layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.get(j);
+                        //pt.mult(1.0/globalScale);
+                        
+                        if (j == layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size() - 1) {
+                            sbb.add("\t\t\t\t\t\t\t\t\t\t{\"co\":[" + pt.x + ", " + pt.y + ", " + pt.z + "], \"pressure\":1, \"strength\":1}");
+                            sbb.add("\t\t\t\t\t\t\t\t\t]");
+                        } else {
+                            sbb.add("\t\t\t\t\t\t\t\t\t\t{\"co\":[" + pt.x + ", " + pt.y + ", " + pt.z + "], \"pressure\":1, \"strength\":1},");
+                        }
+                    }
+                } else {
+                    sbb.add("\t\t\t\t\t\t\t\t\t\"points\":[]");
+                }
 
-                  if (i == layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.size() - 1) {
-                      sbb.add("\t\t\t\t\t\t\t\t}");
-                  } else {
-                      sbb.add("\t\t\t\t\t\t\t\t},");
-                  }
+                if (i == layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.size() - 1) {
+                    sbb.add("\t\t\t\t\t\t\t\t}");
+                } else {
+                    sbb.add("\t\t\t\t\t\t\t\t},");
+                }
 
-                  sb.add(String.join("\n", sbb.toArray(new String[sbb.size()])));
-              }
+                sb.add(String.join("\n", sbb.toArray(new String[sbb.size()])));
+            }
 
-              ArrayList<String> sbFooter = new ArrayList<String>();
-              if (h == layers.get(currentLayer).frames.size() - 1) {
-                  sbFooter.add("\t\t\t\t\t\t\t]");
-                  sbFooter.add("\t\t\t\t\t\t}");
-              } else {
-                  sbFooter.add("\t\t\t\t\t\t\t]");
-                  sbFooter.add("\t\t\t\t\t\t},");
-              }
-              sb.add(String.join("\n", sbFooter.toArray(new String[sbFooter.size()])));
-          }
+            ArrayList<String> sbFooter = new ArrayList<String>();
+            if (h == layers.get(currentLayer).frames.size() - 1) {
+                sbFooter.add("\t\t\t\t\t\t\t]");
+                sbFooter.add("\t\t\t\t\t\t}");
+            } else {
+                sbFooter.add("\t\t\t\t\t\t\t]");
+                sbFooter.add("\t\t\t\t\t\t},");
+            }
+            sb.add(String.join("\n", sbFooter.toArray(new String[sbFooter.size()])));
+        }
 
-          FINAL_LAYER_LIST.add(String.join("\n", sb.toArray(new String[sb.size()])));
-      }
+        FINAL_LAYER_LIST.add(String.join("\n", sb.toArray(new String[sb.size()])));
+    }
 
-      ArrayList<String> s = new ArrayList<String>();
-      s.add("{");
-      s.add("\t\"creator\": \"processing\",");
-      s.add("\t\"grease_pencil\":[");
-      s.add("\t\t{");
-      s.add("\t\t\t\"layers\":[");
+    ArrayList<String> s = new ArrayList<String>();
+    s.add("{");
+    s.add("\t\"creator\": \"processing\",");
+    s.add("\t\"grease_pencil\":[");
+    s.add("\t\t{");
+    s.add("\t\t\t\"layers\":[");
 
-      for (int i = 0; i < layers.size(); i++) {
-          currentLayer = i;
+    for (int i = 0; i < layers.size(); i++) {
+        currentLayer = i;
 
-          s.add("\t\t\t\t{");
-          if (layers.get(currentLayer).name != null && layers.get(currentLayer).name != "") {
-              s.add("\t\t\t\t\t\"name\": \"" + layers.get(currentLayer).name + "\",");
-          } else {
-              s.add("\t\t\t\t\t\"name\": \"UnityLayer " + (currentLayer + 1) + "\",");
-          }
+        s.add("\t\t\t\t{");
+        if (layers.get(currentLayer).name != null && layers.get(currentLayer).name != "") {
+            s.add("\t\t\t\t\t\"name\": \"" + layers.get(currentLayer).name + "\",");
+        } else {
+            s.add("\t\t\t\t\t\"name\": \"UnityLayer " + (currentLayer + 1) + "\",");
+        }
 
-          s.add(FINAL_LAYER_LIST.get(currentLayer));
+        s.add(FINAL_LAYER_LIST.get(currentLayer));
 
-          s.add("\t\t\t\t\t]");
-          if (currentLayer < layers.size() - 1) {
-              s.add("\t\t\t\t},");
-          } else {
-              s.add("\t\t\t\t}");
-          }
-      }
-      s.add("            ]"); // end layers
-      s.add("        }");
-      s.add("    ]");
-      s.add("}");
+        s.add("\t\t\t\t\t]");
+        if (currentLayer < layers.size() - 1) {
+            s.add("\t\t\t\t},");
+        } else {
+            s.add("\t\t\t\t}");
+        }
+    }
+    s.add("            ]"); // end layers
+    s.add("        }");
+    s.add("    ]");
+    s.add("}");
 
-      String url = fileName;
-
+    String url = sketchPath("") + fileName;
+    
+    if (getExtFromFileName(fileName).equals("json")) {
       saveStrings(url, s.toArray(new String[s.size()]));
+    } else {      
+      try {
+        File f = new File(url);
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(f));
+        ZipEntry e = new ZipEntry(getFileNameNoExt(fileName) + ".json");
+        out.putNextEntry(e);
+        
+        byte[] data = String.join("\n", s.toArray(new String[s.size()])).getBytes();
+        out.write(data, 0, data.length);
+        out.closeEntry();
+        
+        out.close();
+      } catch (Exception e) {
+        //
+      }
+    }
   }
-
+   
   void clean() {
     for (int i=0; i<layers.size(); i++) {
       LatkLayer layer = layers.get(i);
@@ -373,8 +446,7 @@ class LatkStroke {
     s.strokeWeight(2);
     for (int i=0; i<_p.size(); i++) {
       PVector pt = _p.get(i);
-      //s.vertex(pt.z, -pt.y, pt.x);
-      s.vertex(pt.x, pt.y, pt.z);
+      s.vertex(pt.z, -pt.y, pt.x);
     }
     s.endShape();
     points = _p;

@@ -5,7 +5,7 @@ Latk latk;
 
 void setup() {
   size(800, 600, P3D);
-  latk = new Latk("jellyfish.json");  
+  latk = new Latk("jellyfish.latk");  
   bloomSetup();
   cam = new PeasyCam(this, 100);
 }
