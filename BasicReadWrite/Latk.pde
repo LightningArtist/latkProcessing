@@ -201,9 +201,9 @@ class Latk {
                 ArrayList<String> sbb = new ArrayList<String>();
                 sbb.add("\t\t\t\t\t\t\t\t{");
                 color col = layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).col;
-                float r = red(col) / 255.0;
-                float g = green(col) / 255.0;
-                float b = blue(col) / 255.0;
+                float r = rounder(red(col) / 255.0, 5);
+                float g = rounder(green(col) / 255.0, 5);
+                float b = rounder(blue(col) / 255.0, 5);
                 sbb.add("\t\t\t\t\t\t\t\t\t\"color\":[" + r + ", " + g + ", " + b + "],");
 
                 if (layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size() > 0) {
@@ -342,6 +342,13 @@ class Latk {
     } else {
       return false;
     }
+  }
+ 
+  float rounder(float _val, float _places){
+    _val *= pow(10,_places);
+    _val = round(_val);
+    _val /= pow(10,_places);
+    return _val;
   }
   
 }
