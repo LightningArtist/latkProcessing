@@ -1,5 +1,5 @@
 void keyPressed() {
-  if (key == ' ') {
+  if (key == 'o') {
     latk.write("output.latk");
   }
 }
