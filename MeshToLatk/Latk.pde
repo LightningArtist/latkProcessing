@@ -272,9 +272,9 @@ class Latk {
             s.add("\t\t\t\t}");
         }
     }
-    s.add("            ]"); // end layers
-    s.add("        }");
-    s.add("    ]");
+    s.add("\t\t\t]"); // end layers
+    s.add("\t\t}");
+    s.add("\t]");
     s.add("}");
 
     String url = sketchPath("") + fileName;
