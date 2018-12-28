@@ -124,8 +124,14 @@ class Latk {
       try {
         String url = new File(dataPath(""), fileName).toString();
         ZipFile zipFile = new ZipFile(url);
-      
-        InputStream stream = zipFile.getInputStream(zipFile.getEntry(getFileNameNoExt(fileName) + ".json"));
+        
+        ArrayList<String> fileNames = new ArrayList<String>();
+        final Enumeration<? extends ZipEntry> entries = zipFile.entries();
+        while (entries.hasMoreElements()) {
+          fileNames.add(entries.nextElement().getName());
+        }
+    
+        InputStream stream = zipFile.getInputStream(zipFile.getEntry(fileNames.get(0)));
   
         String newLine = System.getProperty("line.separator");
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
