@@ -10,8 +10,13 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
-import processing.core.*;
-import processing.data.*;
+
+import processing.core.PApplet;
+import processing.core.PGraphics;
+import processing.core.PImage;
+import processing.core.PVector;
+import processing.data.JSONObject;
+import java.util.ArrayList;
 
 public class Latk {
   
