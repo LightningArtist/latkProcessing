@@ -10,9 +10,7 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR
 
-CORE_PATH="/Applications/Processing/Processing3.app/Contents/Java/core.jar"
-
-javac -cp $CORE_PATH latkProcessing/*.java
+javac -cp /Applications/Processing.app/Contents/Java/core.jar latkProcessing/*.java
 mv latkProcessing/*.class build/latkProcessing/
 cd build
 jar cvfm ../latkProcessing.jar manifest.txt latkProcessing/*.class
