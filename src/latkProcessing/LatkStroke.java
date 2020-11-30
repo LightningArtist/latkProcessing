@@ -1,41 +1,44 @@
 package latkProcessing;
 
+import processing.core.*;
+import java.util.ArrayList;
+
 public class LatkStroke {
   
-  PShape s;
-  ArrayList<PVector> points;
-  color col = color(255);
-  float globalScale = 1;
-  PVector globalOffset = new PVector(0,0,0);
+  public PShape s;
+  public ArrayList<PVector> points;
+  public int col = color(255);
+  public float globalScale = 1;
+  public PVector globalOffset = new PVector(0,0,0);
     
-  LatkStroke(ArrayList<PVector> _p, color _c) {
+  public LatkStroke(ArrayList<PVector> _p, int _c) {
     init(_p, _c);
   }
 
-  void init(ArrayList<PVector> _p, color _c) {
+  public void init(ArrayList<PVector> _p, int _c) {
     setColor(_c);
     setPoints(_p);
   }
 
-  void run() {
+  public void run() {
     pushMatrix();
     scale(globalScale, globalScale, globalScale);
     shape(s);
     popMatrix();
   }
   
-  void run(PGraphics g) {
+  public void run(PGraphics g) {
     g.pushMatrix();
     g.scale(globalScale, globalScale, globalScale);
     g.shape(s);
     g.popMatrix();
   }
   
-  color getColor() {
+  int getColor() {
     return s.getStroke(0);
   }
   
-  void setColor(color _c) {
+  public void setColor(int _c) {
     col = _c;
   }
   
@@ -47,7 +50,7 @@ public class LatkStroke {
     return points;
   }
   
-  void setPoints(ArrayList<PVector> _p) {
+  public void setPoints(ArrayList<PVector> _p) {
     s = createShape();
     s.beginShape();
     s.noFill();
