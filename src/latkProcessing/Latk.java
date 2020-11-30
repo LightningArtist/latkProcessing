@@ -2,6 +2,7 @@ package latkProcessing;
 
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -62,7 +63,7 @@ public class Latk {
   public Latk(String fileName) {
     read(fileName, true);
   
-    startTime = millis();
+    startTime = (int) System.currentTimeMillis();
     println("Latk strokes loaded.");
   }
   
@@ -75,7 +76,7 @@ public class Latk {
       layer.run();
     }
       
-    lastMillis = millis();
+    lastMillis = (int) System.currentTimeMillis();
   }
   
   public void run(PGraphics g) {
@@ -87,12 +88,12 @@ public class Latk {
       layer.run(g);
     }
       
-    lastMillis = millis();
+    lastMillis = (int) System.currentTimeMillis();
   }
   
   public boolean checkInterval() {
     boolean returns = false;
-    timeInterval += millis() - lastMillis;
+    timeInterval += (int) System.currentTimeMillis() - lastMillis;
     if (timeInterval > fpsInterval) {
       returns = true;
       timeInterval = 0;
