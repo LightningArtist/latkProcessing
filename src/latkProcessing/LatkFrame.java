@@ -1,12 +1,17 @@
 package latkProcessing;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PGraphics;
 import java.util.ArrayList;
 
 public class LatkFrame {
+
+  PApplet parent;
+
   public ArrayList<LatkStroke> strokes;
   
-  public LatkFrame() { 
+  public LatkFrame(PApplet _parent) { 
+    parent = _parent;
     strokes = new ArrayList<LatkStroke>();
   }
   

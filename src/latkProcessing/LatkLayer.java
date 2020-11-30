@@ -1,14 +1,20 @@
 package latkProcessing;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PGraphics;
 import java.util.ArrayList;
 
 public class LatkLayer {
+
+  PApplet parent;
+
   public ArrayList<LatkFrame> frames = new ArrayList<LatkFrame>();
   public int currentFrame = 0;
   public String name = "P5layer";
   
-  public LatkLayer() { }
+  public LatkLayer(PApplet _parent) { 
+    parent = _parent;
+  }
   
   public void run() {
     frames.get(currentFrame).run();

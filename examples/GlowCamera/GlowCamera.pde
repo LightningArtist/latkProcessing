@@ -1,11 +1,12 @@
 import peasy.*;
+import latkProcessing.*;
 
 PeasyCam cam;
 Latk latk;
 
 void setup() {
   size(800, 600, P3D);
-  latk = new Latk("jellyfish.latk");  
+  latk = new Latk(this, "jellyfish.latk");  
   bloomSetup();
   cam = new PeasyCam(this, 100);
 }
