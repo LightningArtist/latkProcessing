@@ -10,7 +10,10 @@ DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 cd $DIR
 
+mkdir build/latkProcessing
 javac -cp /Applications/Processing.app/Contents/Java/core.jar latkProcessing/*.java
 mv latkProcessing/*.class build/latkProcessing/
 cd build
 jar cvfm ../latkProcessing.jar manifest.txt latkProcessing/*.class
+cd ..
+mv latkProcessing.jar ../library/
