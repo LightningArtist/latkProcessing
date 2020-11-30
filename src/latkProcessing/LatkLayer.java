@@ -1,21 +1,24 @@
 package latkProcessing;
 
+import processing.core.*;
+import java.util.ArrayList;
+
 public class LatkLayer {
-  ArrayList<LatkFrame> frames = new ArrayList<LatkFrame>();
-  int currentFrame = 0;
-  String name = "P5layer";
+  public ArrayList<LatkFrame> frames = new ArrayList<LatkFrame>();
+  public int currentFrame = 0;
+  public String name = "P5layer";
   
-  LatkLayer() { }
+  public LatkLayer() { }
   
-  void run() {
+  public void run() {
     frames.get(currentFrame).run();
   }
   
-  void run(PGraphics g) {
+  public void run(PGraphics g) {
     frames.get(currentFrame).run(g);
   }
   
-  void nextFrame() {
+  public void nextFrame() {
     currentFrame++;
     if (currentFrame > frames.size()-1) currentFrame = 0;
   }

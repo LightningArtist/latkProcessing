@@ -1,17 +1,22 @@
 package latkProcessing;
 
+import processing.core.*;
+import java.util.ArrayList;
+
 public class LatkFrame {
-  ArrayList<LatkStroke> strokes = new ArrayList<LatkStroke>();
+  public ArrayList<LatkStroke> strokes;
   
-  LatkFrame() { }
+  public LatkFrame() { 
+    strokes = new ArrayList<LatkStroke>();
+  }
   
-  void run() {
+  public void run() {
     for (int i=0; i<strokes.size(); i++) {
       strokes.get(i).run();
     }
   }
   
-  void run(PGraphics g) {
+  public void run(PGraphics g) {
     for (int i=0; i<strokes.size(); i++) {
       strokes.get(i).run(g);
     }
