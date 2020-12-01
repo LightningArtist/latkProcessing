@@ -1,25 +1,17 @@
 package latkProcessing;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.io.*;
+import java.nio.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
+import java.util.ArrayList;
 
-import processing.core.PApplet;
-import processing.core.PGraphics;
-import processing.core.PVector;
+import processing.core.*;
 import processing.data.JSONArray;
 import processing.data.JSONObject;
-import java.util.ArrayList;
 
 public class Latk {
   
@@ -34,21 +26,21 @@ public class Latk {
   
   public ArrayList<LatkLayer> layers;
 
-  public String jsonFilename = "layer_test";
-  public float globalScale = 200f;
-  public int startTime = 0; 
-  public int lastMillis = 0;
-  public int timeInterval = 0;
-  public float fps = 12.0f;
-  public int fpsInterval = (int) ((1.0/fps) * 1000.0);
+  public String jsonFilename;
+  public float globalScale;
+  public int startTime; 
+  public int lastMillis;
+  public int timeInterval;
+  public float fps;
+  public int fpsInterval;
   
-  public int currentLayer = 0;
+  public int currentLayer;
   
-  public int cleanMinPoints = 1;
-  public float cleanMinLength = 0.1f;
+  public int cleanMinPoints;
+  public float cleanMinLength;
   
   public Latk(PApplet _parent) {
-    parent = _parent;
+    init(_parent);
 
     layers = new ArrayList<LatkLayer>();
     layers.add(new LatkLayer(parent));
@@ -56,7 +48,7 @@ public class Latk {
   }
   
   public Latk(PApplet _parent, ArrayList<PVector> _pts, int _c) {
-    parent = _parent;
+    init(_parent);
 
     layers = new ArrayList<LatkLayer>();
     layers.add(new LatkLayer(parent));
@@ -67,19 +59,35 @@ public class Latk {
   }
   
   public Latk(PApplet _parent, ArrayList<Latk> _latks) {
-    parent = _parent;
+    init(_parent);
 
     // TODO
     // read with clear existing false
   }
   
   public Latk(PApplet _parent, String fileName) {
-    parent = _parent;
+    init(_parent);
 
     read(fileName, true);
-  
     startTime = parent.millis();
-    System.out.println("Latk strokes loaded.");
+    parent.println("Latk strokes loaded.");
+  }
+
+  public void init(PApplet _parent) {
+    parent = _parent;
+
+    jsonFilename = "layer_test";
+    globalScale = 200f;
+    startTime = 0; 
+    lastMillis = 0;
+    timeInterval = 0;
+    fps = 12.0f;
+    fpsInterval = (int) ((1.0f/fps) * 1000.0f);
+    
+    currentLayer = 0;
+    
+    cleanMinPoints = 1;
+    cleanMinLength = 0.1f;
   }
   
   public void run() {
@@ -141,10 +149,11 @@ public class Latk {
     if (clearExisting) layers = new ArrayList<LatkLayer>();
     
     if (getExtFromFileName(fileName).equals("json")) {
+      String url = getFilePath(fileName);
       json = parent.loadJSONObject(fileName);
     } else {
       try {
-        String url = new File(parent.dataPath(""), fileName).toString();
+        String url = getFilePath(fileName);
         ZipFile zipFile = new ZipFile(url);
         
         ArrayList<String> fileNames = new ArrayList<String>();
@@ -168,7 +177,7 @@ public class Latk {
   
         zipFile.close();
       } catch (Exception e) {
-        System.out.println(e);
+        parent.println(e);
       }
     }
     
@@ -185,11 +194,11 @@ public class Latk {
           jsonFrame = (JSONObject) jsonLayer.getJSONArray("frames").get(j);
           for (int l=0; l<jsonFrame.getJSONArray("strokes").size(); l++) {
             jsonStroke = (JSONObject) jsonFrame.getJSONArray("strokes").get(l);
-            
-            int r = (int) (255.0 * jsonStroke.getJSONArray("int").getFloat(0));
-            int g = (int) (255.0 * jsonStroke.getJSONArray("int").getFloat(1));
-            int b = (int) (255.0 * jsonStroke.getJSONArray("int").getFloat(2));
-            int col = parent.color(r,g,b);
+
+            int r = (int) (255.0f * jsonStroke.getJSONArray("color").getFloat(0));
+            int g = (int) (255.0f * jsonStroke.getJSONArray("color").getFloat(1));
+            int b = (int) (255.0f * jsonStroke.getJSONArray("color").getFloat(2));
+            int col = parent.color(r, g, b);
             
             ArrayList<PVector> pts = new ArrayList<PVector>();
             for (int m=0; m<jsonStroke.getJSONArray("points").size(); m++) {
@@ -305,7 +314,7 @@ public class Latk {
     s.add("\t]");
     s.add("}");
 
-    String url = parent.sketchPath("") + fileName;
+    String url = getFilePath(fileName);
     
     if (getExtFromFileName(fileName).equals("json")) {
       parent.saveStrings(url, s.toArray(new String[s.size()]));
@@ -326,7 +335,21 @@ public class Latk {
       }
     }
   }
-   
+  
+  public String getFilePath(String fileName) {
+    String url = parent.dataPath(fileName);
+    File file = new File(url);
+    String returns;
+    if (file.exists()) {
+      returns = url;
+    } else {
+      returns = fileName;
+    }
+    
+    parent.println("Latk load url: " + returns);
+    return returns;
+  }
+
   public void clean() {
     for (int i=0; i<layers.size(); i++) {
       LatkLayer layer = layers.get(i);
