@@ -1,4 +1,5 @@
 import peasy.PeasyCam;
+import latkProcessing.*;
 
 PeasyCam cam;
 
@@ -10,7 +11,7 @@ void setup() {
   size(1280, 720, P3D);
   cam = new PeasyCam(this, 400);
   
-  latk = new Latk();
+  latk = new Latk(this);
   obj = new MeshObj(loadShape("battle_pod_remesh.obj"));
   pointCloud = new RgbPointCloud(obj);
   pointCloud.sortByDistance();
@@ -35,7 +36,7 @@ void setup() {
         if (PVector.dist(p1, p2) > 0.001) cleanedPoints.add(p2);
       }
       if (cleanedPoints.size() > 1) {
-        LatkStroke s = new LatkStroke(points, color(255));
+        LatkStroke s = new LatkStroke(this, points, color(255));
         latk.layers.get(0).frames.get(0).strokes.add(s);
       }
       points = new ArrayList<PVector>();
