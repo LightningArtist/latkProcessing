@@ -241,7 +241,7 @@ public class Latk {
                 float r = rounder(parent.red(col) / 255f, 5);
                 float g = rounder(parent.green(col) / 255f, 5);
                 float b = rounder(parent.blue(col) / 255f, 5);
-                sbb.add("\t\t\t\t\t\t\t\t\t\"int\":[" + r + ", " + g + ", " + b + "],");
+                sbb.add("\t\t\t\t\t\t\t\t\t\"color\":[" + r + ", " + g + ", " + b + "],");
 
                 if (layers.get(currentLayer).frames.get(layers.get(currentLayer).currentFrame).strokes.get(i).points.size() > 0) {
                     sbb.add("\t\t\t\t\t\t\t\t\t\"points\":[");
@@ -337,16 +337,8 @@ public class Latk {
   }
   
   public String getFilePath(String fileName) {
-    String url = parent.dataPath(fileName);
-    File file = new File(url);
-    String returns;
-    if (file.exists()) {
-      returns = url;
-    } else {
-      returns = fileName;
-    }
-    
-    parent.println("Latk load url: " + returns);
+    String returns = parent.dataPath(fileName);
+    parent.println("Latk url: " + returns);
     return returns;
   }
 
