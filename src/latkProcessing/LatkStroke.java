@@ -8,17 +8,17 @@ public class LatkStroke {
   PApplet parent;
 
   public PShape s;
-  public ArrayList<PVector> points;
+  public ArrayList<LatkPoint> points;
   public int col;
   public float globalScale;
   public PVector globalOffset;
     
-  public LatkStroke(PApplet _parent, ArrayList<PVector> _p, int _c) {
+  public LatkStroke(PApplet _parent, ArrayList<LatkPoint> _p, int _c) {
     parent = _parent;
     init(_p, _c);
   }
 
-  public void init(ArrayList<PVector> _p, int _c) {
+  public void init(ArrayList<LatkPoint> _p, int _c) {
     col = parent.color(255);
     globalScale = 1;
     globalOffset = new PVector(0,0,0);
@@ -56,14 +56,14 @@ public class LatkStroke {
     return points;
   }
   
-  public void setPoints(ArrayList<PVector> _p) {
+  public void setPoints(ArrayList<LatkPoint> _p) {
     s = parent.createShape();
     s.beginShape();
     s.noFill();
     s.stroke(col);
     s.strokeWeight(2);
     for (int i=0; i<_p.size(); i++) {
-      PVector pt = _p.get(i);
+      PVector pt = _p.get(i).co;
       s.vertex(pt.z, -pt.y, pt.x);
     }
     s.endShape();
