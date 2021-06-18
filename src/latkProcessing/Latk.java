@@ -8,6 +8,8 @@ import java.util.zip.ZipOutputStream;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 
 import processing.core.*;
 import processing.data.JSONArray;
@@ -382,6 +384,72 @@ public class Latk {
                 frame.strokes.remove(k);
               }
             }
+          }
+        }
+      }
+    }
+  }
+
+  void normalize() {
+    float minVal = 0.0;
+    float maxVal = 1.0;
+    ArrayList<float> allX = new ArrayList<float>(); 
+    ArrayList<float> allY = new ArrayList<float>(); 
+    ArrayList<float> allZ = new ArrayList<float>(); 
+
+    for (int i=0; i<layers.size(); i++) {
+      LatkLayer layer = layers.get(i);
+      for (int j=0; j<layer.frames.size(); j++) {
+        LatkFrame frame = frames.get(j);
+        for (int k=0; k<frame.strokes.size(); k++) {
+          LatkStroke stroke = frame.strokes.get(k);
+          for (int l=0; l<stroke.points.size(); l++) {
+            LatkPoint point = stroke.points.get(l);
+            allX.add(point.co.x);
+            allY.add(point.co.y);
+            allZ.add(point.co.z);
+          }
+        }
+      }
+    }
+
+    Collections.sort(allX);
+    Collections.sort(allY);
+    Collections.sort(allZ);
+    
+    float[] leastValArray = { allX.get(0), allY.get(0), allZ.get(0) };
+    float[] mostValArray = { allX.get(allX.size()-1), allY.get(allY.size()-1), allZ.get(allZ.size()-1) };
+    
+    Arrays.sort(leastValArray);
+    Arrays.sort(mostValArray);
+    
+    float leastVal = leastValArray[0];
+    float mostVal = mostValArray[2];
+    float valRange = mostVal - leastVal;
+    
+    float xRange = (allX.get(allX.size()-1) - allX.get(0)) / valRange;
+    float yRange = (allY.get(allY.size()-1) - allY.get(0)) / valRange;
+    float zRange = (allZ.get(allZ.size()-1) - allZ.get(0)) / valRange;
+    
+    float minValX = minVal * xRange;
+    float minValY = minVal * yRange;
+    float minValZ = minVal * zRange;
+    float maxValX = maxVal * xRange;
+    float maxValY = maxVal * yRange;
+    float maxValZ = maxVal * zRange;
+    
+    for (int i=0; i<layers.size(); i++) {
+      LatkLayer layer = layers.get(i);
+      for (int j=0; j<layer.frames.size(); j++) {
+        LatkFrame frame = frames.get(j);
+        for (int k=0; k<frame.strokes.size(); k++) {
+          LatkStroke stroke = frame.strokes.get(k);
+          for (int l=0; l<stroke.points.size(); l++) {
+            LatkPoint point = stroke.points.get(l);
+            float x = map(point.co.x, allX.get(0), allX.get(allX.size()-1), minValX, maxValX);
+            float y = map(point.co.y, allY.get(0), allY.get(allY.size()-1), minValY, maxValY);
+            float z = map(point.co.z, allZ.get(0), allZ.get(allZ.size()-1), minValZ, maxValZ);
+            point.co = new PVector(x,y,z);
           }
         }
       }
