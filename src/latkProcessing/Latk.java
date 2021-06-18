@@ -369,7 +369,7 @@ public class Latk {
               PVector p1 = stroke.points.get(l).co;
               PVector p2 = stroke.points.get(l-1).co;
               // 2. Remove the point if it's a duplicate.
-              if (hitDetect3D(p1, p2, 0.1f)) {
+              if (hitDetect3D(p1, p2, cleanMinLength)) {
                 stroke.points.remove(l);
               } else {
                 totalLength += PVector.dist(p1, p2);
@@ -390,17 +390,17 @@ public class Latk {
     }
   }
 
-  void normalize() {
-    float minVal = 0.0;
-    float maxVal = 1.0;
-    ArrayList<float> allX = new ArrayList<float>(); 
-    ArrayList<float> allY = new ArrayList<float>(); 
-    ArrayList<float> allZ = new ArrayList<float>(); 
+  public void normalize() {
+    float minVal = 0.0f;
+    float maxVal = 1.0f;
+    ArrayList<Float> allX = new ArrayList<Float>(); 
+    ArrayList<Float> allY = new ArrayList<Float>(); 
+    ArrayList<Float> allZ = new ArrayList<Float>(); 
 
     for (int i=0; i<layers.size(); i++) {
       LatkLayer layer = layers.get(i);
       for (int j=0; j<layer.frames.size(); j++) {
-        LatkFrame frame = frames.get(j);
+        LatkFrame frame = layer.frames.get(j);
         for (int k=0; k<frame.strokes.size(); k++) {
           LatkStroke stroke = frame.strokes.get(k);
           for (int l=0; l<stroke.points.size(); l++) {
@@ -434,6 +434,7 @@ public class Latk {
     float minValX = minVal * xRange;
     float minValY = minVal * yRange;
     float minValZ = minVal * zRange;
+
     float maxValX = maxVal * xRange;
     float maxValY = maxVal * yRange;
     float maxValZ = maxVal * zRange;
@@ -441,19 +442,23 @@ public class Latk {
     for (int i=0; i<layers.size(); i++) {
       LatkLayer layer = layers.get(i);
       for (int j=0; j<layer.frames.size(); j++) {
-        LatkFrame frame = frames.get(j);
+        LatkFrame frame = layer.frames.get(j);
         for (int k=0; k<frame.strokes.size(); k++) {
           LatkStroke stroke = frame.strokes.get(k);
           for (int l=0; l<stroke.points.size(); l++) {
             LatkPoint point = stroke.points.get(l);
-            float x = map(point.co.x, allX.get(0), allX.get(allX.size()-1), minValX, maxValX);
-            float y = map(point.co.y, allY.get(0), allY.get(allY.size()-1), minValY, maxValY);
-            float z = map(point.co.z, allZ.get(0), allZ.get(allZ.size()-1), minValZ, maxValZ);
+            float x = remap(point.co.x, allX.get(0), allX.get(allX.size()-1), minValX, maxValX);
+            float y = remap(point.co.y, allY.get(0), allY.get(allY.size()-1), minValY, maxValY);
+            float z = remap(point.co.z, allZ.get(0), allZ.get(allZ.size()-1), minValZ, maxValZ);
             point.co = new PVector(x,y,z);
           }
         }
       }
     }
+  }
+
+  public float remap(float s, float a1, float a2, float b1, float b2) {
+      return b1 + (s - a1) * (b2 - b1) / (a2 - a1);
   }
 
   public boolean hitDetect3D(PVector p1, PVector p2, float s) { 
@@ -465,9 +470,9 @@ public class Latk {
   }
  
   public float rounder(float _val, float _places){
-    _val *= parent.pow(10,_places);
+    _val *= parent.pow(10, _places);
     _val = parent.round(_val);
-    _val /= parent.pow(10,_places);
+    _val /= parent.pow(10, _places);
     return _val;
   }
   
