@@ -70,4 +70,8 @@ public class LatkStroke {
     points = _p;
   }
 
+  public void updatePoints() {
+    setPoints(points);
+  }
+
 }

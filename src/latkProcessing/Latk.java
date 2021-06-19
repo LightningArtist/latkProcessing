@@ -385,6 +385,7 @@ public class Latk {
               }
             }
           }
+          stroke.updatePoints();
         }
       }
     }
@@ -447,11 +448,11 @@ public class Latk {
           LatkStroke stroke = frame.strokes.get(k);
           for (int l=0; l<stroke.points.size(); l++) {
             LatkPoint point = stroke.points.get(l);
-            float x = remap(point.co.x, allX.get(0), allX.get(allX.size()-1), minValX, maxValX);
-            float y = remap(point.co.y, allY.get(0), allY.get(allY.size()-1), minValY, maxValY);
-            float z = remap(point.co.z, allZ.get(0), allZ.get(allZ.size()-1), minValZ, maxValZ);
-            point.co = new PVector(x,y,z);
+            point.co.x = remap(point.co.x, allX.get(0), allX.get(allX.size()-1), minValX, maxValX);
+            point.co.y = remap(point.co.y, allY.get(0), allY.get(allY.size()-1), minValY, maxValY);
+            point.co.z = remap(point.co.z, allZ.get(0), allZ.get(allZ.size()-1), minValZ, maxValZ);
           }
+          stroke.updatePoints();
         }
       }
     }
