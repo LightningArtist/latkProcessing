@@ -16,7 +16,7 @@ public class LatkPoint {
     co = new PVector(0,0,0);
     pressure = 1.0f;
     strength = 1.0f;
-    vertex_color = parent.color(0,0,0,0);
+    vertex_color = parent.color(255);
   }
   
   public LatkPoint(PApplet _parent, PVector _co) {
@@ -24,7 +24,7 @@ public class LatkPoint {
     co = _co;
     pressure = 1.0f;
     strength = 1.0f;
-    vertex_color = parent.color(0,0,0,0);
+    vertex_color = parent.color(255);
   }
   
   public LatkPoint(PApplet _parent, PVector _co, int _vertex_color) {
@@ -40,7 +40,7 @@ public class LatkPoint {
     co = _co;
     pressure = _pressure;
     strength = _strength;
-    vertex_color = parent.color(0,0,0,0);
+    vertex_color = parent.color(255);
   } 
  
   public LatkPoint(PApplet _parent, PVector _co, float _pressure, float _strength, int _vertex_color) {
