@@ -1,3 +1,7 @@
-# latkProcessing
-<img src="./documentation/images/logo.png"><br>
-Read and write Latk files in Processing. Last tested in Processing 3.5.
+#Latk for Processing
+Read and write Lightning Artist Toolkit files in Processing, by @n1ckfg
+
+Last tested in Processing 3.5.
+
+<img src="./reference/logo.png">
+

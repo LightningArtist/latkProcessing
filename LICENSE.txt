@@ -1,10 +1,13 @@
-The Lightning Artist Toolkit was developed with support from:
+Latk for Processing
+Read and write Lightning Artist Toolkit files in Processing
+
+Developed with support from:
    Canada Council on the Arts
    Eyebeam Art + Technology Center
    Ontario Arts Council
    Toronto Arts Council
    
-Copyright (c) 2020 Nick Fox-Gieg
+Copyright (c) 2021 Nick Fox-Gieg
 https://fox-gieg.com
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
