@@ -83,12 +83,13 @@ public class LatkStroke {
     LatkPoint lower, upper, center;
 
     for (int i = 1; i < nPointsMinusTwo; i++) {
-	  lower = points.get(i-1);
-	  center = points.get(i);
-	  upper = points.get(i+1);
+  	  lower = points.get(i-1);
+  	  center = points.get(i);
+  	  upper = points.get(i+1);
 
-	  center.co.x = (lower.co.x + weight * center.co.x + upper.co.x) * scale;
-	  center.co.y = (lower.co.y + weight * center.co.y + upper.co.y) * scale;
+  	  center.co.x = (lower.co.x + weight * center.co.x + upper.co.x) * scale;
+      center.co.y = (lower.co.y + weight * center.co.y + upper.co.y) * scale;
+      center.co.z = (lower.co.z + weight * center.co.z + upper.co.z) * scale;
     }
   }
 
