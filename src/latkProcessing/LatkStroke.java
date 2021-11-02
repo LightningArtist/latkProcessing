@@ -11,8 +11,10 @@ public class LatkStroke {
   public ArrayList<LatkPoint> points;
   public int col;
   public float globalScale;
-  public PVector globalOffset;
-    
+  public PVector globalOffset;  
+  public int smoothReps = 10;
+  public int splitReps = 2;
+
   public LatkStroke(PApplet _parent, ArrayList<LatkPoint> _p, int _c) {
     parent = _parent;
     init(_p, _c);
@@ -74,4 +76,42 @@ public class LatkStroke {
     setPoints(points);
   }
 
+  public void smoothStroke() {
+    float weight = 18.0f;
+    float scale = 1.0f / (weight + 2.0f);
+    int nPointsMinusTwo = points.size() - 2;
+    LatkPoint lower, upper, center;
+
+    for (int i = 1; i < nPointsMinusTwo; i++) {
+	  lower = points.get(i-1);
+	  center = points.get(i);
+	  upper = points.get(i+1);
+
+	  center.co.x = (lower.co.x + weight * center.co.x + upper.co.x) * scale;
+	  center.co.y = (lower.co.y + weight * center.co.y + upper.co.y) * scale;
+    }
+  }
+
+  public void splitStroke() {
+    for (int i = 1; i < points.size(); i+=2) {
+      LatkPoint center = points.get(i);
+      LatkPoint lower = points.get(i-1);
+      float x = (center.co.x + lower.co.x) / 2.0f;
+      float y = (center.co.y + lower.co.y) / 2.0f;
+      float z = (center.co.z + lower.co.z) / 2.0f;
+      PVector p = new PVector(x, y, z);
+      LatkPoint lp = new LatkPoint(parent, p);
+      points.add(i, lp);
+    }
+  }
+
+  public void refine() {
+    for (int i=0; i<splitReps; i++) {
+      splitStroke();  
+      smoothStroke();  
+    }
+    for (int i=0; i<smoothReps - splitReps; i++) {
+      smoothStroke();    
+     }
+  }
 }
