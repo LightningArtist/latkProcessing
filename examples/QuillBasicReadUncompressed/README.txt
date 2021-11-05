@@ -1,0 +1,1 @@
+Uncompressed Quill binary files are fairly large, so no examples are included.
