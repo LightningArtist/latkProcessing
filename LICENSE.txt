@@ -1,5 +1,5 @@
 Latk for Processing
-Read and write Lightning Artist Toolkit files in Processing
+Read Latk, Tilt Brush, and Quill files in Processing
 
 Developed with support from:
    Canada Council on the Arts
